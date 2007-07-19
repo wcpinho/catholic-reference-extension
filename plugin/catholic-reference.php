@@ -1,11 +1,22 @@
 <?php
 /*
-Plugin Name: Catholic Reference Extension for Wordpress
+Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text on hover.
 Version: 0.7.0
 Author: Pistos
 Author URI: http://blog.purepistos.net
+
+Usage:
+
+The CRE will take most common Scripture references in posts and convert them
+automatically to the HTML code necessary to show popups, etc.  You can use
+Full book names (e.g. Genesis 1:1) or abbreviated book names, with or without
+a period (e.g. Exo. 2:10-15, Jn 3:16).
+
+To prevent the CRE from transforming your text, put an exclamation mark
+before the reference (e.g. !Matthew 28:20).
+
 
 Copyright (c) 2007 Pistos
 Released under the GPL license, version 2
@@ -28,35 +39,46 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 $cathref_book_numbers = array(
+    'ge' => 1,
     'gen' => 1,
     'genesis' => 1,
+    'ex' => 2,
     'exo' => 2,
     'exod' => 2,
     'exodus' => 2,
 );
     
 function cathref_substitute_scripture( $matches ) {
-    $book = strtolower( $matches[ 1 ] );
-    $book_number = $cathref_book_numbers[ $book ];
-    $chapter = $matches[ 2 ];
-    if( $matches[ 3 ] ) {
-        $start_verse = $matches[ 3 ];
-        if( $matches[ 5 ] ) {
-            $verse_separator = $matches[ 4 ];
-            $end_verse = $matches[ 5 ];
-        } else {
-            $end_verse = $start_verse;
-        }
-    }
+    global $cathref_book_numbers;
     
-    $retval = "<span class=\"scripture\">BN $book_number $book $chapter";
-    if( $start_verse ) {
-        $retval .= " " . $start_verse;
-        if( $end_verse ) {
-            $retval .= $verse_separator . $end_verse;
+    $lead_char = $matches[ 1 ];
+    $original_book = $matches[ 2 ];
+    $book = strtolower( $original_book );
+    $book_number = $cathref_book_numbers[ $book ];
+    $retval = $matches[ 0 ];
+    
+    if( $book_number ) {
+    
+        $chapter = $matches[ 3 ];
+        if( $matches[ 4 ] ) {
+            $start_verse = $matches[ 4 ];
+            if( $matches[ 6 ] ) {
+                $verse_separator = $matches[ 5 ];
+                $end_verse = $matches[ 6 ];
+            } else {
+                $end_verse = $start_verse;
+            }
         }
+        
+        $retval = "$lead_char<span class=\"scripture\">$original_book $chapter";
+        if( $start_verse ) {
+            $retval .= ":" . $start_verse;
+            if( $end_verse ) {
+                $retval .= $verse_separator . $end_verse;
+            }
+        }
+        $retval .= "</span>";
     }
-    $retval .= "</span>";
     
     return $retval;
 }
@@ -65,7 +87,7 @@ function cathref_filter( $content ) {
     $drb_file = "/misc/pistos/unpack/douay-rheims.txt";
     
     $content = preg_replace_callback(
-        "/((?:\\d+ +)?[A-Z][a-z]+)\\.? +(\\d+)(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/",
+        "/([^!])((?:\\d+ +)?[A-Z][a-z]+)\\.? +(\\d+)(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/",
         'cathref_substitute_scripture',
         $content
     );
