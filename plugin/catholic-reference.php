@@ -28,6 +28,15 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 function cathref_filter( $content ) {
+    $drb_file = "/misc/pistos/unpack/douay-rheims.txt";
+    $book_numbers = array(
+        'gen' => 1,
+        'genesis' => 1,
+        'exo' => 2,
+        'exod' => 2,
+        'exodus' => 2,
+    );
+
     return $content;
 }
 
