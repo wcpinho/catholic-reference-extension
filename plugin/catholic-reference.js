@@ -17,15 +17,13 @@ function show_popup( obj ) {
         hide_popup(
             function( event ) {
                 $cathref_current_popup = obj;
-                obj.css( {
-                    top: event.pageY + 'px',
-                    left: event.pageX + 'px'
-                } );
                 obj.fadeIn();
             }
         );
     } else {
         $cathref_current_popup = obj;
+        obj.css( 'top',  event.pageY + 10 );
+        obj.css( 'left', event.pageX + 10 );
         obj.fadeIn();
     }
 }
