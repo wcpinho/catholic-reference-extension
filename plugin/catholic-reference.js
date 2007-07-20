@@ -15,8 +15,12 @@ function hide_popup( callback ) {
 function show_popup( obj ) {
     if( $cathref_current_popup != null ) {
         hide_popup(
-            function() {
+            function( event ) {
                 $cathref_current_popup = obj;
+                obj.css( {
+                    top: event.pageY + 'px',
+                    left: event.pageX + 'px'
+                } );
                 obj.fadeIn();
             }
         );
@@ -35,7 +39,7 @@ $(document).ready( function() {
         function() {
             var popup = $( this ).next( '.scripture_popup' );
             popup.animate(
-                {opacity: 1.0},
+                {opacity: 0.85},
                 1500,
                 null,
                 function() {
