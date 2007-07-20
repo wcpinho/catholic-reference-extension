@@ -47,6 +47,20 @@ $cathref_book_numbers = array(
     'exod' => 2,
     'exodus' => 2,
 );
+
+function cathref_header() {
+    ?>
+    <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
+    <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
+    <script type="text/javascript">
+        $(document).ready( function() {
+            $( 'span.scripture' ).hover( function() {
+                $( this ).next( 'div.scripture' )
+            } );
+        } );
+    </script>
+    <?php
+}
     
 function cathref_substitute_scripture( $matches ) {
     global $cathref_book_numbers;
@@ -77,7 +91,9 @@ function cathref_substitute_scripture( $matches ) {
                 $retval .= $verse_separator . $end_verse;
             }
         }
-        $retval .= "</span>";
+        $retval .= "</span><div class=\"scripture\">foo bar baz blim";
+        
+        $retval .= "</div>";
     }
     
     return $retval;
@@ -95,6 +111,7 @@ function cathref_filter( $content ) {
     return $content;
 }
 
+add_action( 'wp_head', 'cathref_header' );
 add_filter( 'the_content', 'cathref_filter' );
 
 ?>

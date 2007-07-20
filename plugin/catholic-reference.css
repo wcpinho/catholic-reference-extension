@@ -1,0 +1,11 @@
+span.scripture {
+    border-bottom: 4px double;
+}
+
+span.scripture:hover {
+    color: #66AAAA;
+}
+
+div.scripture {
+    display: none;
+}
