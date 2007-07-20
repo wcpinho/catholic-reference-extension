@@ -13,27 +13,30 @@ function hide_popup( callback ) {
     }
 }
 
-function show_popup( obj ) {
+function do_popup( obj, event ) {
+    $cathref_current_popup = obj;
+    obj.css( 'top',  event.pageY + 10 );
+    obj.css( 'left', event.pageX + 10 );
+    obj.fadeIn();
+}
+
+function show_popup( obj, event ) {
     if( $cathref_current_popup != null ) {
         hide_popup(
-            function( event ) {
-                $cathref_current_popup = obj;
-                obj.fadeIn();
+            function() {
+                do_popup( obj, event );
             }
         );
     } else {
-        $cathref_current_popup = obj;
-        obj.css( 'top',  event.pageY + 10 );
-        obj.css( 'left', event.pageX + 10 );
-        obj.fadeIn();
+        do_popup( obj, event );
     }
 }
 
 $(document).ready( function() {
     
     $( '.scripture_reference' ).hover(
-        function() {
-            show_popup( $( this ).next( '.scripture_popup' ) );
+        function( event ) {
+            show_popup( $( this ).next( '.scripture_popup' ), event );
         },
         function() {
             var popup = $( this ).next( '.scripture_popup' );
