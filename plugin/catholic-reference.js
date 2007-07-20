@@ -1,5 +1,6 @@
 $cathref_current_popup = null;
 $cathref_active = false;
+$cathref_timeout = null;
 
 function hide_popup( callback ) {
     if( $cathref_current_popup != null ) {
@@ -36,21 +37,20 @@ $(document).ready( function() {
         },
         function() {
             var popup = $( this ).next( '.scripture_popup' );
-            popup.animate(
-                {opacity: 0.85},
-                1500,
-                null,
+            $cathref_timeout = setTimeout(
                 function() {
                     if( ! $cathref_active ) {
                         hide_popup();
                     }
-                }
-            )
+                },
+                1500
+            );
         }
     );
     $( '.scripture_popup' ).hover(
         function() {
             $cathref_active = true;
+            clearTimeout( $cathref_timeout );
         },
         function() {
             hide_popup();
