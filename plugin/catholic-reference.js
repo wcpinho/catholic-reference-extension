@@ -1,30 +1,25 @@
 var cathref_popup_activated = new Object;
-var cathref_popup_locked = new Object;
 var cathref_popup_timers = new Object;
+var cathref_popup_showing = new Object;
 
 function hide_popup( obj ) {
     if( obj != null ) {
-        id = obj.attr( 'popid' );
-        if( ! cathref_popup_locked[ id ] ) {
-            cathref_popup_locked[ id ] = true;
-            obj.fadeOut(
-                'slow',
-                function() {
-                    cathref_popup_locked[ id ] = false;
-                }
-            );
+        if( obj.css( 'opacity' ) >= 0.80 ) {
+            id = obj.attr( 'popid' );
+            if( cathref_popup_showing[ id ] ) {
+                cathref_popup_showing[ id ] = false;
+                cathref_popup_activated[ id ] = false;
+                obj.fadeOut( 'slow' );
+            }
         }
     }
 }
 
-function do_popup( obj, event ) {
+function show_popup( obj, event ) {
+    cathref_popup_showing[ obj.attr( 'popid' ) ] = true;
     obj.css( 'top',  event.pageY + 10 );
     obj.css( 'left', event.pageX + 10 );
     obj.fadeIn();
-}
-
-function show_popup( obj, event ) {
-    do_popup( obj, event );
 }
 
 function popup_by_id( id ) {
@@ -37,7 +32,7 @@ $(document).ready( function() {
         function( event ) {
             var id = $( this ).attr( 'refid' );
             clearTimeout( cathref_popup_timers[ id ] );
-            do_popup( popup_by_id( id ), event );
+            show_popup( popup_by_id( id ), event );
         },
         function() {
             var id = $( this ).attr( 'refid' );
