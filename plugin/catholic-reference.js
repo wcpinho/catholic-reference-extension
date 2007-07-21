@@ -9,7 +9,7 @@ function hide_popup( obj ) {
             if( cathref_popup_showing[ id ] ) {
                 cathref_popup_showing[ id ] = false;
                 cathref_popup_activated[ id ] = false;
-                obj.fadeOut( 'slow' );
+                obj.fadeTo( 'slow', 0.0 );
             }
         }
     }
@@ -19,7 +19,7 @@ function show_popup( obj, event ) {
     cathref_popup_showing[ obj.attr( 'popid' ) ] = true;
     obj.css( 'top',  event.pageY + 10 );
     obj.css( 'left', event.pageX + 10 );
-    obj.fadeIn();
+    obj.fadeTo( 'slow', 0.85 );
 }
 
 function popup_by_id( id ) {
