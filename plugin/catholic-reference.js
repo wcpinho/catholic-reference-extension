@@ -70,4 +70,9 @@ $(document).ready( function() {
             hide_popup( $( this ).attr( 'popid' ) );
         }
     );
+    $( '.close_button' ).click(
+        function() {
+            hide_popup( $( this ).attr( 'closeid' ) );
+        }
+    );
 } );
