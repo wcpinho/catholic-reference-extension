@@ -23,7 +23,7 @@ function show_popup( obj, event ) {
 }
 
 function popup_by_id( id ) {
-    return $( '[@popid=' + id + ']' );
+    return $( '[@popid="' + id + '"]' );
 }
 
 $(document).ready( function() {
