@@ -14,4 +14,14 @@
     margin: 0px;
     opacity: 0.85;
     background-color: #FFFFFF;
+    width: 200px;
+}
+
+.scripture_header {
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+.scripture_text {
+    border-top: 1px solid #333333;
 }

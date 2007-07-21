@@ -23,17 +23,23 @@ function show_popup( obj, event ) {
     do_popup( obj, event );
 }
 
+function popup_by_id( id ) {
+    return $( '[@popid=' + id + ']' );
+}
+
 $(document).ready( function() {
     
     $( '.scripture_reference' ).hover(
         function( event ) {
-            do_popup( $( this ).next( '.scripture_popup' ), event );
+            var id = $( this ).attr( 'refid' );
+            do_popup( popup_by_id( id ), event );
         },
         function() {
-            var popup = $( this ).next( '.scripture_popup' );
+            var id = $( this ).attr( 'refid' );
+            var popup = popup_by_id( id );
             setTimeout(
                 function() {
-                    if( ! cathref_popup_activated[ popup.attr( 'id' ) ] ) {
+                    if( ! cathref_popup_activated[ id ] ) {
                         hide_popup( popup );
                     }
                 },
@@ -43,7 +49,8 @@ $(document).ready( function() {
     );
     $( '.scripture_popup' ).hover(
         function() {
-            cathref_popup_activated[ $( this ).attr( 'id' ) ] = true;
+            var id = $( this ).attr( 'popid' );
+            cathref_popup_activated[ id ] = true;
         },
         function() {
             hide_popup( $( this ) );

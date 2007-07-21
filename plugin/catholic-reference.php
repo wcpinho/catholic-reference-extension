@@ -48,6 +48,11 @@ $cathref_book_numbers = array(
     'exodus' => 2,
 );
 
+$cathref_book_names = array(
+    1 => 'Genesis',
+    2 => 'Exodus',
+);
+
 function cathref_header() {
     ?>
     <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
@@ -57,7 +62,7 @@ function cathref_header() {
 }
     
 function cathref_substitute_scripture( $matches ) {
-    global $cathref_book_numbers;
+    global $cathref_book_numbers, $cathref_book_names, $cathref_popups;
     
     $retval = $matches[ 0 ];
     $lead_char = $matches[ 1 ];
@@ -66,7 +71,7 @@ function cathref_substitute_scripture( $matches ) {
     } else {
         $original_book = $matches[ 2 ];
         $book = strtolower( $original_book );
-        $book_number = $cathref_book_numbers[ $book ];
+        $book_number = $cathref_book_numbers[ $book ] + 0;
         
         if( $book_number ) {
         
@@ -81,20 +86,34 @@ function cathref_substitute_scripture( $matches ) {
                 }
             }
             
-            $retval = "$lead_char<span class=\"scripture_reference\">$original_book $chapter";
+            $id = ( microtime() + rand( 0, 1000 ) );
+            
+            $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter";
+            
+            $verse_string = '';
             if( $start_verse ) {
-                $retval .= ":" . $start_verse;
-                if( $end_verse ) {
-                    $retval .= $verse_separator . $end_verse;
+                $verse_string .= ":" . $start_verse;
+                if( $verse_separator && $end_verse ) {
+                    $verse_string .= $verse_separator . $end_verse;
                 }
             }
-            $retval .= "</span><span class=\"scripture_popup\" id=\"" .
-                ( microtime() + rand( 0, 1000 ) ) .
-                "\">";
-                
-            $retval .= "foo bar baz blim";
+            $retval .= $verse_string;
             
             $retval .= "</span>";
+            
+            $popup = "<div class=\"scripture_popup\" popid=\"$id\">";
+                
+            // Header
+            $popup .= "<div class='scripture_header'>" . $cathref_book_names[ $book_number ] . " $chapter$verse_string";
+            $popup .= "</div>";
+            
+            // Body
+            $popup .= "<div class='scripture_text'>foo";
+            $popup .= "</div>";
+            
+            $popup .= "</div>";
+            
+            $cathref_popups[] = $popup;
         }
     }
     
@@ -102,6 +121,8 @@ function cathref_substitute_scripture( $matches ) {
 }
 
 function cathref_filter( $content ) {
+    global $cathref_popups;
+    
     $drb_file = "/misc/pistos/unpack/douay-rheims.txt";
     
     $content = preg_replace_callback(
@@ -109,6 +130,10 @@ function cathref_filter( $content ) {
         'cathref_substitute_scripture',
         $content
     );
+    
+    foreach ( $cathref_popups as $popup ) {
+        $content .= $popup;
+    }
 
     return $content;
 }
