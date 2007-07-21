@@ -32,7 +32,9 @@ $(document).ready( function() {
         function( event ) {
             var id = $( this ).attr( 'refid' );
             clearTimeout( cathref_popup_timers[ id ] );
-            show_popup( popup_by_id( id ), event );
+            if( ! cathref_popup_showing[ id ] ) {
+                show_popup( popup_by_id( id ), event );
+            }
         },
         function() {
             var id = $( this ).attr( 'refid' );
