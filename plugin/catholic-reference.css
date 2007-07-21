@@ -1,20 +1,33 @@
 .scripture_reference {
-    border-bottom: 4px double;
+    /* border-bottom: 4px double; */
+    color: #0000FF;
 }
 
 .scripture_reference:hover {
     color: #66AAAA;
 }
 
-.scripture_popup {
+.scripture_popup, .scripture_popup_shadow {
     display: none;
     position: absolute;
-    border: 2px solid #000099;
     padding: 1em;
     margin: 0px;
-    opacity: 0.85;
-    background-color: #FFFFFF;
+    /* opacity: 0.85; */
     width: 200px;
+}
+
+.scripture_popup {
+    border: 2px solid #000099;
+    background-color: #FFFFFF;
+    z-index: 2;
+}
+.scripture_popup_shadow {
+    background-color: #000000;
+    opacity: 0.20;
+    z-index: 1;
+}
+.scripture_popup_shadow * {
+    color: #000000;
 }
 
 .scripture_header {

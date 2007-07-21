@@ -103,7 +103,9 @@ function cathref_substitute_scripture( $matches ) {
             
             $retval .= "</span>";
             
-            $popup = "<div class=\"scripture_popup\" popid=\"$id\">";
+            $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
+            $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\">";
+            $popup = "";
                 
             // Header
             $popup .= "<div class='scripture_header'>" . $cathref_book_names[ $book_number ] . " $chapter$verse_string";
@@ -127,10 +129,13 @@ function cathref_substitute_scripture( $matches ) {
             }
             
             $popup .= "</div>";
-            
             $popup .= "</div>";
             
-            $cathref_popups[] = $popup;
+            $popup1 .= $popup;
+            $popup2 .= $popup;
+            
+            $cathref_popups[] = $popup1;
+            $cathref_popups[] = $popup2;
         }
     }
     

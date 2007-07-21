@@ -2,7 +2,8 @@ var cathref_popup_activated = new Object;
 var cathref_popup_timers = new Object;
 var cathref_popup_showing = new Object;
 
-function hide_popup( obj ) {
+function hide_popup( id ) {
+    var obj = popup_by_id( id );
     if( obj != null ) {
         if( obj.css( 'opacity' ) >= 0.80 ) {
             id = obj.attr( 'popid' );
@@ -10,20 +11,32 @@ function hide_popup( obj ) {
                 cathref_popup_showing[ id ] = false;
                 cathref_popup_activated[ id ] = false;
                 obj.fadeOut();
+                var shadow = shadow_by_id( id );
+                shadow.fadeOut();
             }
         }
     }
 }
 
-function show_popup( obj, event ) {
-    cathref_popup_showing[ obj.attr( 'popid' ) ] = true;
+function show_popup( id, event ) {
+    var obj = popup_by_id( id );
+    cathref_popup_showing[ id ] = true;
+    
     obj.css( 'top',  event.pageY + 10 );
     obj.css( 'left', event.pageX + 10 );
     obj.fadeIn();
+    
+    var shadow = shadow_by_id( id );
+    shadow.css( 'top',  event.pageY + 20 );
+    shadow.css( 'left', event.pageX + 20 );
+    shadow.fadeIn();
 }
 
 function popup_by_id( id ) {
-    return $( '[@popid="' + id + '"]' );
+    return $( 'div.scripture_popup[@popid="' + id + '"]' );
+}
+function shadow_by_id( id ) {
+    return $( 'div.scripture_popup_shadow[@popid="' + id + '"]' );
 }
 
 $(document).ready( function() {
@@ -33,16 +46,15 @@ $(document).ready( function() {
             var id = $( this ).attr( 'refid' );
             clearTimeout( cathref_popup_timers[ id ] );
             if( ! cathref_popup_showing[ id ] ) {
-                show_popup( popup_by_id( id ), event );
+                show_popup( id, event );
             }
         },
         function() {
             var id = $( this ).attr( 'refid' );
-            var popup = popup_by_id( id );
             cathref_popup_timers[ id ] = setTimeout(
                 function() {
                     if( ! cathref_popup_activated[ id ] ) {
-                        hide_popup( popup );
+                        hide_popup( id );
                     }
                 },
                 1500
@@ -55,7 +67,7 @@ $(document).ready( function() {
             cathref_popup_activated[ id ] = true;
         },
         function() {
-            hide_popup( $( this ) );
+            hide_popup( $( this ).attr( 'popid' ) );
         }
     );
 } );
