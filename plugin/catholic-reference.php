@@ -38,6 +38,8 @@ http://www.gnu.org/licenses/gpl.txt
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+$cathref_drb_dir = "/misc/svn/catholic-reference/trunk/texts/drb";
+
 $cathref_book_numbers = array(
     'ge' => 1,
     'gen' => 1,
@@ -62,7 +64,7 @@ function cathref_header() {
 }
     
 function cathref_substitute_scripture( $matches ) {
-    global $cathref_book_numbers, $cathref_book_names, $cathref_popups;
+    global $cathref_book_numbers, $cathref_book_names, $cathref_popups, $cathref_drb_dir;
     
     $retval = $matches[ 0 ];
     $lead_char = $matches[ 1 ];
@@ -108,7 +110,22 @@ function cathref_substitute_scripture( $matches ) {
             $popup .= "</div>";
             
             // Body
-            $popup .= "<div class='scripture_text'>foo";
+            $popup .= "<div class='scripture_text'>";
+            $lines = file( $cathref_drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
+            foreach ( $lines as $line ) {
+                $parts = explode( "\t", $line, 3 );
+                $line_chapter = $parts[ 0 ];
+                $line_verse = $parts[ 1 ];
+                $line_text = $parts[ 2 ];
+                if( $line_chapter == $chapter ) {
+                    if( ( $start_verse <= $line_verse ) && ( $line_verse <= $end_verse ) ) {
+                        $popup .= "<div class='verse'>";
+                        $popup .= "<span class='verse_number'>$line_verse</span>$line_text";
+                        $popup .= "</div>";
+                    }
+                }
+            }
+            
             $popup .= "</div>";
             
             $popup .= "</div>";

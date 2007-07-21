@@ -24,4 +24,17 @@
 
 .scripture_text {
     border-top: 1px solid #333333;
+    max-height: 300px;
+    overflow: auto;
+}
+
+.verse {
+    margin-top: 0.25em
+    margin-bottom: 0.25em;
+}
+
+.verse_number {
+    vertical-align: super;
+    font-size: smaller;
+    margin-right: 0.25em;
 }

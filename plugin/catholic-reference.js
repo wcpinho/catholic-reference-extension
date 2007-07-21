@@ -1,15 +1,19 @@
 var cathref_popup_activated = new Object;
 var cathref_popup_locked = new Object;
+var cathref_popup_timers = new Object;
 
 function hide_popup( obj ) {
     if( obj != null ) {
-        cathref_popup_locked[ obj.attr( 'id' ) ] = true;
-        obj.fadeOut(
-            'slow',
-            function() {
-                cathref_popup_locked[ obj.attr( 'id' ) ] = false;
-            }
-        );
+        id = obj.attr( 'popid' );
+        if( ! cathref_popup_locked[ id ] ) {
+            cathref_popup_locked[ id ] = true;
+            obj.fadeOut(
+                'slow',
+                function() {
+                    cathref_popup_locked[ id ] = false;
+                }
+            );
+        }
     }
 }
 
@@ -32,12 +36,13 @@ $(document).ready( function() {
     $( '.scripture_reference' ).hover(
         function( event ) {
             var id = $( this ).attr( 'refid' );
+            clearTimeout( cathref_popup_timers[ id ] );
             do_popup( popup_by_id( id ), event );
         },
         function() {
             var id = $( this ).attr( 'refid' );
             var popup = popup_by_id( id );
-            setTimeout(
+            cathref_popup_timers[ id ] = setTimeout(
                 function() {
                     if( ! cathref_popup_activated[ id ] ) {
                         hide_popup( popup );
