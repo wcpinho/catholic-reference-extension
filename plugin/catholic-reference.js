@@ -10,9 +10,9 @@ function hide_popup( id ) {
             if( cathref_popup_showing[ id ] ) {
                 cathref_popup_showing[ id ] = false;
                 cathref_popup_activated[ id ] = false;
-                obj.fadeOut();
+                obj.fadeOut( 'slow' );
                 var shadow = shadow_by_id( id );
-                shadow.fadeOut();
+                shadow.fadeOut( 'fast' );
             }
         }
     }
@@ -24,12 +24,12 @@ function show_popup( id, event ) {
     
     obj.css( 'top',  event.pageY + 10 );
     obj.css( 'left', event.pageX + 10 );
-    obj.fadeIn();
+    obj.fadeIn( 'fast' );
     
     var shadow = shadow_by_id( id );
     shadow.css( 'top',  event.pageY + 20 );
     shadow.css( 'left', event.pageX + 20 );
-    shadow.fadeIn();
+    shadow.fadeIn( 'slow' );
 }
 
 function popup_by_id( id ) {
