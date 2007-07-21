@@ -88,7 +88,11 @@ function cathref_substitute_scripture( $matches ) {
                     $retval .= $verse_separator . $end_verse;
                 }
             }
-            $retval .= "</span><span class=\"scripture_popup\">foo bar baz blim";
+            $retval .= "</span><span class=\"scripture_popup\" id=\"" .
+                ( microtime() + rand( 0, 1000 ) ) .
+                "\">";
+                
+            $retval .= "foo bar baz blim";
             
             $retval .= "</span>";
         }

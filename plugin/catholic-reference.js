@@ -1,49 +1,40 @@
-$cathref_current_popup = null;
-$cathref_active = false;
-$cathref_timeout = null;
+var cathref_popup_activated = new Object;
+var cathref_popup_locked = new Object;
 
-function hide_popup( callback ) {
-    if( $cathref_current_popup != null ) {
-        $cathref_current_popup.fadeOut(
+function hide_popup( obj ) {
+    if( obj != null ) {
+        cathref_popup_locked[ obj.attr( 'id' ) ] = true;
+        obj.fadeOut(
             'slow',
-            callback
+            function() {
+                cathref_popup_locked[ obj.attr( 'id' ) ] = false;
+            }
         );
-        $cathref_active = false;
-        $cathref_current_popup = null;
     }
 }
 
 function do_popup( obj, event ) {
-    $cathref_current_popup = obj;
     obj.css( 'top',  event.pageY + 10 );
     obj.css( 'left', event.pageX + 10 );
     obj.fadeIn();
 }
 
 function show_popup( obj, event ) {
-    if( $cathref_current_popup != null ) {
-        hide_popup(
-            function() {
-                do_popup( obj, event );
-            }
-        );
-    } else {
-        do_popup( obj, event );
-    }
+    do_popup( obj, event );
 }
 
 $(document).ready( function() {
     
     $( '.scripture_reference' ).hover(
         function( event ) {
-            show_popup( $( this ).next( '.scripture_popup' ), event );
+            do_popup( $( this ).next( '.scripture_popup' ), event );
         },
         function() {
             var popup = $( this ).next( '.scripture_popup' );
-            $cathref_timeout = setTimeout(
+            setTimeout(
                 function() {
-                    if( ! $cathref_active ) {
-                        hide_popup();
+                    if( ! cathref_popup_activated[ popup.attr( 'id' ) ] ) {
+                        hide_popup( popup );
                     }
                 },
                 1500
@@ -52,11 +43,10 @@ $(document).ready( function() {
     );
     $( '.scripture_popup' ).hover(
         function() {
-            $cathref_active = true;
-            clearTimeout( $cathref_timeout );
+            cathref_popup_activated[ $( this ).attr( 'id' ) ] = true;
         },
         function() {
-            hide_popup();
+            hide_popup( $( this ) );
         }
     );
 } );
