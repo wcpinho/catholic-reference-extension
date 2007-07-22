@@ -75,4 +75,12 @@ $(document).ready( function() {
             hide_popup( $( this ).attr( 'closeid' ) );
         }
     );
+    $( '.close_button' ).hover(
+        function() {
+            $( this ).children( '.close_button_highlight' ).fadeIn( 'fast' );
+        },
+        function() {
+            $( this ).children( '.close_button_highlight' ).fadeOut( 'slow' );
+        }
+    )
 } );

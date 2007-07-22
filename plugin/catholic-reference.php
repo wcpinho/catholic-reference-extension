@@ -109,7 +109,7 @@ function cathref_substitute_scripture( $matches ) {
                 
             // Header
             $popup .= "<div class='scripture_header'>";
-            $popup .= "<div class='close_button' closeid='$id'></div>";
+            $popup .= "<div class='close_button' closeid='$id'><div class='close_button_highlight'></div></div>";
             $popup .= $cathref_book_names[ $book_number ] . " $chapter$verse_string";
             $popup .= "</div>";
             
