@@ -16,7 +16,7 @@ end
 
 def write_para( para )
     x = ( para / 100 ) * 100
-    filename = "#{$output_dir}/ccc-#{x+1}-#{x+100}.txt"
+    filename = "#{$output_dir}/ccc-#{x}-#{x+99}.txt"
     File.open( filename, 'a' ) do |f|
         f.puts "<div class='cccp'>"
         f.puts $paragraphs[ para ]
@@ -60,7 +60,7 @@ Dir[ "#{source_dir}/__*" ].each do |filename|
         end
     end
     counter += 1
-    break if counter >= 20
+    #break if counter >= 20
 end
 
 if para

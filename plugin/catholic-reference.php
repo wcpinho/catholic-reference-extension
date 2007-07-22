@@ -39,6 +39,7 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 $cathref_drb_dir = "/misc/svn/catholic-reference/trunk/texts/drb";
+$cathref_ccc_dir = "/misc/svn/catholic-reference/trunk/texts/ccc";
 
 $cathref_book_numbers = array(
     'ge' => 1,
