@@ -1,6 +1,7 @@
 var cathref_popup_activated = new Object;
 var cathref_popup_timers = new Object;
 var cathref_popup_showing = new Object;
+var cathref_ref_timers = new Object;
 
 function hide_popup( id ) {
     var obj = popup_by_id( id );
@@ -44,13 +45,19 @@ $(document).ready( function() {
     $( '.scripture_reference' ).hover(
         function( event ) {
             var id = $( this ).attr( 'refid' );
-            clearTimeout( cathref_popup_timers[ id ] );
-            if( ! cathref_popup_showing[ id ] ) {
-                show_popup( id, event );
-            }
+            cathref_ref_timers[ id ] = setTimeout(
+                function() {
+                    clearTimeout( cathref_popup_timers[ id ] );
+                    if( ! cathref_popup_showing[ id ] ) {
+                        show_popup( id, event );
+                    }
+                },
+                200
+            );
         },
         function() {
             var id = $( this ).attr( 'refid' );
+            clearTimeout( cathref_ref_timers[ id ] );
             cathref_popup_timers[ id ] = setTimeout(
                 function() {
                     if( ! cathref_popup_activated[ id ] ) {
