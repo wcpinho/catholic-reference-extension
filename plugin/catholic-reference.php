@@ -145,6 +145,75 @@ function cathref_substitute_scripture( $matches ) {
     return $retval;
 }
 
+function cathref_substitute_ccc( $matches ) {
+    global $cathref_popups, $cathref_ccc_dir;
+    
+    $retval = $matches[ 0 ];
+    $paras = array();
+    $ranges = array();
+    foreach ( $matches as $range ) {
+        if( preg_match( "/(\\d+).+(\\d+)/", $range, $range_matches ) {
+            $ranges = array( 'start' => $matches[ 1 ], 'end' => $matches[ 2 ] );
+        } else {
+            preg_match( "/(\\d+)/", $range, $range_matches ) {
+            }
+        }
+        $num = null;
+        $str = "";
+        foreach ( $range_matches as $number ) {
+            if( $num ) {
+                // Second number ofrange
+                $str = "-"
+            } else {
+                // First number
+                $str = "";
+            }
+            $str .= $number[ 0 ];
+            $ranges[] = $str;
+        }
+    }
+    
+    $id = ( microtime() + rand( 0, 1000 ) );
+    
+    $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
+    $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\">";
+    $popup = "";
+        
+    // Header
+    $popup .= "<div class='ccc_header'>";
+    $popup .= "<div class='close_button' closeid='$id'><div class='close_button_highlight'></div></div>";
+    $popup .= $cathref_book_names[ $book_number ] . " $chapter$verse_string";
+    $popup .= "</div>";
+    
+    // Body
+    $popup .= "<div class='scripture_text'>";
+    $lines = file( $cathref_drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
+    foreach ( $lines as $line ) {
+        $parts = explode( "\t", $line, 3 );
+        $line_chapter = $parts[ 0 ];
+        $line_verse = $parts[ 1 ];
+        $line_text = $parts[ 2 ];
+        if( $line_chapter == $chapter ) {
+            if( ( $start_verse <= $line_verse ) && ( $line_verse <= $end_verse ) ) {
+                $popup .= "<div class='verse'>";
+                $popup .= "<span class='verse_number'>$line_verse</span>$line_text";
+                $popup .= "</div>";
+            }
+        }
+    }
+    
+    $popup .= "</div>";
+    $popup .= "</div>";
+    
+    $popup1 .= $popup;
+    $popup2 .= $popup;
+    
+    $cathref_popups[] = $popup1;
+    $cathref_popups[] = $popup2;
+    
+    return $retval;
+}
+
 function cathref_filter( $content ) {
     global $cathref_popups;
     
@@ -153,6 +222,11 @@ function cathref_filter( $content ) {
     $content = preg_replace_callback(
         "/(.)((?:\\d+ +)?[A-Z][a-z]+)\\.? +(\\d+)(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/",
         'cathref_substitute_scripture',
+        $content
+    );
+    $content = preg_replace_callback(
+        "/CCC p?p? *(\\d+(?: *- *\\d+)?)" + "(?: *, *(\\d+(?: *- *\\d+)?))*/",
+        'cathref_substitute_ccc',
         $content
     );
     
