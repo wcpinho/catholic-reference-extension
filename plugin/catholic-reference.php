@@ -154,10 +154,10 @@ function cathref_substitute_scripture( $matches ) {
 function cathref_substitute_ccc( $matches ) {
     global $cathref_popups, $cathref_ccc_dir;
     
-    $retval = $matches[ 0 ];
+    $original_span = $matches[ 0 ];
     $ranges = array();
     foreach ( $matches as $range ) {
-        if( preg_match( "/(\\d+).+(\\d+)/", $range, $range_matches ) {
+        if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
             $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
         } else {
             preg_match( "/(\\d+)/", $range, $range_matches );
@@ -168,7 +168,7 @@ function cathref_substitute_ccc( $matches ) {
     $paras = array();
     $range_strs = array();
     foreach( $ranges as $range ) {
-        for( int $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
+        for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
             $paras[] = $i;
         }
         if( $range[ 'start' ] == $range[ 'end' ] ) {
@@ -196,7 +196,8 @@ function cathref_substitute_ccc( $matches ) {
     
     foreach( $paras as $para ) {
         $x = ( (int)( $para / 100 ) ) * 100;
-        $lines = file( "$cathref_ccc_dir/ccc-#{x}-#{x+99}.txt" , FILE_IGNORE_NEW_LINES );
+        $y = $x + 99;
+        $lines = file( "$cathref_ccc_dir/ccc-$x-$y.txt" , FILE_IGNORE_NEW_LINES );
         foreach ( $lines as $line ) {
             $parts = explode( "\t", $line );
             $file_para = array_shift( $parts );
@@ -218,13 +219,11 @@ function cathref_substitute_ccc( $matches ) {
     $cathref_popups[] = $popup1;
     $cathref_popups[] = $popup2;
     
-    return $retval;
+    return "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
 }
 
 function cathref_filter( $content ) {
     global $cathref_popups;
-    
-    $drb_file = "/misc/pistos/unpack/douay-rheims.txt";
     
     $content = preg_replace_callback(
         "/(.)((?:\\d+ +)?[A-Z][a-z]+)\\.? +(\\d+)(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/",
@@ -232,7 +231,7 @@ function cathref_filter( $content ) {
         $content
     );
     $content = preg_replace_callback(
-        "/CCC p?p? *(\\d+(?: *- *\\d+)?)" + "(?: *, *(\\d+(?: *- *\\d+)?))*/",
+        "/CCC p?p? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
         'cathref_substitute_ccc',
         $content
     );
