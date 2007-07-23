@@ -14,8 +14,14 @@ automatically to the HTML code necessary to show popups, etc.  You can use
 Full book names (e.g. Genesis 1:1) or abbreviated book names, with or without
 a period (e.g. Exo. 2:10-15, Jn 3:16).
 
-To prevent the CRE from transforming your text, put an exclamation mark
-before the reference (e.g. !Matthew 28:20).
+To prevent the CRE from transforming text which appears to be a scripture reference,
+put an exclamation mark before the reference (e.g. !Matthew 28:20).
+
+To reference the Catechism of the Catholic Church, use paragraph numbers.
+Multiple paragraphs can be enumerated using commas and dashes.  Examples:
+
+CCC 1234,1237-1239
+CCC pp1234,1237-1239
 
 
 Copyright (c) 2007 Pistos
@@ -149,27 +155,26 @@ function cathref_substitute_ccc( $matches ) {
     global $cathref_popups, $cathref_ccc_dir;
     
     $retval = $matches[ 0 ];
-    $paras = array();
     $ranges = array();
     foreach ( $matches as $range ) {
         if( preg_match( "/(\\d+).+(\\d+)/", $range, $range_matches ) {
-            $ranges = array( 'start' => $matches[ 1 ], 'end' => $matches[ 2 ] );
+            $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
         } else {
-            preg_match( "/(\\d+)/", $range, $range_matches ) {
-            }
+            preg_match( "/(\\d+)/", $range, $range_matches );
+            $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
         }
-        $num = null;
-        $str = "";
-        foreach ( $range_matches as $number ) {
-            if( $num ) {
-                // Second number ofrange
-                $str = "-"
-            } else {
-                // First number
-                $str = "";
-            }
-            $str .= $number[ 0 ];
-            $ranges[] = $str;
+    }
+    
+    $paras = array();
+    $range_strs = array();
+    foreach( $ranges as $range ) {
+        for( int $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
+            $paras[] = $i;
+        }
+        if( $range[ 'start' ] == $range[ 'end' ] ) {
+            $range_strs[] = $range[ 'start' ];
+        } else {
+            $range_strs[] = $range[ 'start' ] . "-" . $range[ 'end' ];
         }
     }
     
@@ -182,22 +187,24 @@ function cathref_substitute_ccc( $matches ) {
     // Header
     $popup .= "<div class='ccc_header'>";
     $popup .= "<div class='close_button' closeid='$id'><div class='close_button_highlight'></div></div>";
-    $popup .= $cathref_book_names[ $book_number ] . " $chapter$verse_string";
+    $popup .= "CCC " . join( ',', $range_strs );
     $popup .= "</div>";
     
     // Body
-    $popup .= "<div class='scripture_text'>";
-    $lines = file( $cathref_drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
-    foreach ( $lines as $line ) {
-        $parts = explode( "\t", $line, 3 );
-        $line_chapter = $parts[ 0 ];
-        $line_verse = $parts[ 1 ];
-        $line_text = $parts[ 2 ];
-        if( $line_chapter == $chapter ) {
-            if( ( $start_verse <= $line_verse ) && ( $line_verse <= $end_verse ) ) {
-                $popup .= "<div class='verse'>";
-                $popup .= "<span class='verse_number'>$line_verse</span>$line_text";
-                $popup .= "</div>";
+    
+    $popup .= "<div class='ccc_text'>";
+    
+    foreach( $paras as $para ) {
+        $x = ( (int)( $para / 100 ) ) * 100;
+        $lines = file( "$cathref_ccc_dir/ccc-#{x}-#{x+99}.txt" , FILE_IGNORE_NEW_LINES );
+        foreach ( $lines as $line ) {
+            $parts = explode( "\t", $line );
+            $file_para = array_shift( $parts );
+            if( $para == $file_para ) {
+                $popup .= "<div class='cccp'>";
+                $popup .= "<span class='paragraph_number'>$para</span><p>";
+                $popup .= join( '</p><p>', $parts );
+                $popup .= "</p></div>";
             }
         }
     }

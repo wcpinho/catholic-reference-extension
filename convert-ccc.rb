@@ -18,9 +18,7 @@ def write_para( para )
     x = ( para / 100 ) * 100
     filename = "#{$output_dir}/ccc-#{x}-#{x+99}.txt"
     File.open( filename, 'a' ) do |f|
-        f.puts "<div class='cccp'>"
-        f.puts $paragraphs[ para ]
-        f.puts "</div>"
+        f.puts "#{para}\t#{$paragraphs[ para ]}"
     end
 end
 
@@ -45,10 +43,14 @@ Dir[ "#{source_dir}/__*" ].each do |filename|
                 write_para( para )
             end
             para = $1.to_i
-            $paragraphs[ para ] = inner.clean
+            text = inner.clean
+            if text =~ /^#{para} *(.+)/m
+                text = $1
+            end
+            $paragraphs[ para ] = text
         elsif p[ :style ] == "margin-left:35.4pt"
             if para
-                $paragraphs[ para ] << "\n\n" + inner.clean
+                $paragraphs[ para ] << "\t" + inner.clean
             else
                 puts "styled without leader:"
                 puts inner
