@@ -154,7 +154,7 @@ function cathref_substitute_scripture( $matches ) {
 function cathref_substitute_ccc( $matches ) {
     global $cathref_popups, $cathref_ccc_dir;
     
-    $original_span = $matches[ 0 ];
+    $original_span = array_shift( $matches );
     $ranges = array();
     foreach ( $matches as $range ) {
         if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
