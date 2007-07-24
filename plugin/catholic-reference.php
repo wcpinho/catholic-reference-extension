@@ -22,7 +22,8 @@ Multiple paragraphs can be enumerated using commas and dashes.  Examples:
 
 CCC 1234,1237-1239
 CCC pp1234,1237-1239
-
+CCC paragraph 1234
+CCC paragraphs 1234,1237
 
 Copyright (c) 2007 Pistos
 Released under the GPL license, version 2
@@ -203,9 +204,14 @@ function cathref_substitute_ccc( $matches ) {
             $file_para = array_shift( $parts );
             if( $para == $file_para ) {
                 $popup .= "<div class='cccp'>";
-                $popup .= "<span class='paragraph_number'>$para</span><p>";
-                $popup .= join( '</p><p>', $parts );
-                $popup .= "</p></div>";
+                $popup .= "<span class='paragraph_number'>&para;$para</span> ";
+                $popup .= array_shift( $parts );
+                if( count( $parts ) > 0 ) {
+                    $popup .= "<p>";
+                    $popup .= join( '</p><p>', $parts );
+                    $popup .= "</p>";
+                }
+                $popup .= "</div>";
             }
         }
     }
@@ -231,7 +237,7 @@ function cathref_filter( $content ) {
         $content
     );
     $content = preg_replace_callback(
-        "/CCC p?p? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
+        "/CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
         'cathref_substitute_ccc',
         $content
     );

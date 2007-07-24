@@ -38,15 +38,13 @@ Dir[ "#{source_dir}/__*" ].each do |filename|
     doc = Hpricot( File.read( filename ) )
     (doc/'p.MsoNormal').each do |p|
         inner = p.inner_html
-        if inner =~ /^ *(\d+)/m
+        inner_text = p.inner_text
+        if inner_text =~ /^ *(\d+)/m
             if para
                 write_para( para )
             end
             para = $1.to_i
-            text = inner.clean
-            if text =~ /^#{para} *(.+)/m
-                text = $1
-            end
+            text = inner.clean.sub( /#{para}/, '' )
             $paragraphs[ para ] = text
         elsif p[ :style ] == "margin-left:35.4pt"
             if para
