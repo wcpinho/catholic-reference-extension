@@ -68,9 +68,7 @@ class CathRefExt {
 
         add_action( 'wp_head', array( &$this, 'cathref_header' ) );
         add_filter( 'the_content', array( &$this, 'cathref_filter' ) );
-        // add_action('admin_menu', array(&$this,'menu'));
-        // add_action( 'admin_head', 'cathref_options_page_adder' );
-        
+        add_action( 'admin_menu', array( &$this, 'cathref_options_page_adder' ) );
     }
     
     function cathref_header() {
@@ -254,7 +252,9 @@ class CathRefExt {
     }
     
     function cathref_options_page() {
-        return "<p>hi</p>";
+        ?>
+        <div>foo</div>
+        <?php
     }
     
     function cathref_options_page_adder() {
@@ -264,7 +264,7 @@ class CathRefExt {
                 'Catholic Reference',
                 'administrator',
                 basename(__FILE__),
-                'cathref_options_page'
+                array( &$this, 'cathref_options_page' )
             );
         }
     }
