@@ -46,7 +46,7 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 class CathRefExt {
-    public $cathref_book_numbers = array(
+    public $book_numbers = array(
         'ge' => 1,
         'gen' => 1,
         'genesis' => 1,
@@ -56,32 +56,33 @@ class CathRefExt {
         'exodus' => 2,
     );
     
-    public $cathref_book_names = array(
+    public $book_names = array(
         1 => 'Genesis',
         2 => 'Exodus',
     );
 
     function __construct() {
-        $this->cathref_drb_dir = "/misc/svn/catholic-reference/trunk/texts/drb";
-        $this->cathref_ccc_dir = "/misc/svn/catholic-reference/trunk/texts/ccc";
-        $this->cathref_popups = array();
+        $this->drb_dir = "/misc/svn/catholic-reference/trunk/texts/drb";
+        $this->ccc_dir = "/misc/svn/catholic-reference/trunk/texts/ccc";
+        $this->popups = array();
 
-        add_action( 'wp_head', array( &$this, 'cathref_header' ) );
-        add_filter( 'the_content', array( &$this, 'cathref_filter' ) );
-        add_action( 'admin_menu', array( &$this, 'cathref_options_page_adder' ) );
+        add_action( 'wp_head', array( &$this, 'header' ) );
+        add_filter( 'the_content', array( &$this, 'filter' ) );
+        add_action( 'admin_menu', array( &$this, 'options_page_adder' ) );
     }
     
     /* ****************************************** */
     
-    function cathref_header() {
+    function header() {
         ?>
         <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
         <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
         <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.js"></script>
         <?php
     }
+    
         
-    function cathref_substitute_scripture( $matches ) {
+    function substitute_scripture( $matches ) {
         $retval = $matches[ 0 ];
         $lead_char = $matches[ 1 ];
         if( $lead_char == "!" ) {
@@ -89,7 +90,7 @@ class CathRefExt {
         } else {
             $original_book = $matches[ 2 ];
             $book = strtolower( $original_book );
-            $book_number = $this->cathref_book_numbers[ $book ] + 0;
+            $book_number = $this->book_numbers[ $book ] + 0;
             
             if( $book_number ) {
             
@@ -126,12 +127,12 @@ class CathRefExt {
                 // Header
                 $popup .= "<div class='scripture_header'>";
                 $popup .= "<div class='close_button' closeid='$id'><div class='close_button_highlight'></div></div>";
-                $popup .= $this->cathref_book_names[ $book_number ] . " $chapter$verse_string";
+                $popup .= $this->book_names[ $book_number ] . " $chapter$verse_string";
                 $popup .= "</div>";
                 
                 // Body
                 $popup .= "<div class='scripture_text'>";
-                $lines = file( $this->cathref_drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
+                $lines = file( $this->drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
                 foreach ( $lines as $line ) {
                     $parts = explode( "\t", $line, 3 );
                     $line_chapter = $parts[ 0 ];
@@ -152,15 +153,15 @@ class CathRefExt {
                 $popup1 .= $popup;
                 $popup2 .= $popup;
                 
-                $this->cathref_popups[] = $popup1;
-                $this->cathref_popups[] = $popup2;
+                $this->popups[] = $popup1;
+                $this->popups[] = $popup2;
             }
         }
         
         return $retval;
     }
     
-    function cathref_substitute_ccc( $matches ) {
+    function substitute_ccc( $matches ) {
         $original_span = array_shift( $matches );
         $ranges = array();
         foreach ( $matches as $range ) {
@@ -204,7 +205,7 @@ class CathRefExt {
         foreach( $paras as $para ) {
             $x = ( (int)( $para / 100 ) ) * 100;
             $y = $x + 99;
-            $lines = file( $this->cathref_ccc_dir . "/ccc-$x-$y.txt" , FILE_IGNORE_NEW_LINES );
+            $lines = file( $this->ccc_dir . "/ccc-$x-$y.txt" , FILE_IGNORE_NEW_LINES );
             foreach ( $lines as $line ) {
                 $parts = explode( "\t", $line );
                 $file_para = array_shift( $parts );
@@ -228,25 +229,25 @@ class CathRefExt {
         $popup1 .= $popup;
         $popup2 .= $popup;
         
-        $this->cathref_popups[] = $popup1;
-        $this->cathref_popups[] = $popup2;
+        $this->popups[] = $popup1;
+        $this->popups[] = $popup2;
         
         return "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
     }
     
-    function cathref_filter( $content ) {
+    function filter( $content ) {
         $content = preg_replace_callback(
             "/(.)((?:\\d+ +)?[A-Z][a-z]+)\\.? +(\\d+)(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/",
-            array( &$this, 'cathref_substitute_scripture' ),
+            array( &$this, 'substitute_scripture' ),
             $content
         );
         $content = preg_replace_callback(
             "/CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
-            array( &$this, 'cathref_substitute_ccc' ),
+            array( &$this, 'substitute_ccc' ),
             $content
         );
         
-        foreach ( $this->cathref_popups as $popup ) {
+        foreach ( $this->popups as $popup ) {
             $content .= $popup;
         }
     
@@ -257,13 +258,13 @@ class CathRefExt {
      * Options and configuration
      */
     
-    function cathref_options_page() {
+    function options_page() {
         ?>
         <div class="cathref_options">foo</div>
         <?php
     }
     
-    function cathref_options_page_adder() {
+    function options_page_adder() {
         if( function_exists( 'add_options_page' ) ) {
             add_options_page(
                 __(
@@ -276,7 +277,7 @@ class CathRefExt {
                 ),
                 'administrator',
                 basename(__FILE__),
-                array( &$this, 'cathref_options_page' )
+                array( &$this, 'options_page' )
             );
         }
     }
