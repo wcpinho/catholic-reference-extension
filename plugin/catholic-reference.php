@@ -67,6 +67,7 @@ class CathRefExt {
         $this->popups = array();
 
         add_action( 'wp_head', array( &$this, 'header' ) );
+        add_action( 'admin_head', array( &$this, 'admin_header' ) );
         add_filter( 'the_content', array( &$this, 'filter' ) );
         add_action( 'admin_menu', array( &$this, 'options_page_adder' ) );
     }
@@ -81,6 +82,11 @@ class CathRefExt {
         <?php
     }
     
+    function admin_header() {
+        ?>
+        <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
+        <?php
+    }
         
     function substitute_scripture( $matches ) {
         $retval = $matches[ 0 ];
