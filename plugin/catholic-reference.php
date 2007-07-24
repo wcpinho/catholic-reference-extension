@@ -71,6 +71,8 @@ class CathRefExt {
         add_action( 'admin_menu', array( &$this, 'cathref_options_page_adder' ) );
     }
     
+    /* ****************************************** */
+    
     function cathref_header() {
         ?>
         <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
@@ -251,17 +253,27 @@ class CathRefExt {
         return $content;
     }
     
+    /* ******************************************
+     * Options and configuration
+     */
+    
     function cathref_options_page() {
         ?>
-        <div>foo</div>
+        <div class="cathref_options">foo</div>
         <?php
     }
     
     function cathref_options_page_adder() {
         if( function_exists( 'add_options_page' ) ) {
             add_options_page(
-                'Catholic Reference Extension',
-                'Catholic Reference',
+                __(
+                    'Catholic Reference Extension',
+                    'catholic-reference'
+                ),
+                __(
+                    'Catholic Reference',
+                    'catholic-reference'
+                ),
                 'administrator',
                 basename(__FILE__),
                 array( &$this, 'cathref_options_page' )
