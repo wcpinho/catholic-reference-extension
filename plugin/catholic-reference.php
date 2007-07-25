@@ -80,7 +80,6 @@ class CathRefExt {
         $config = array(
             'show_popup_on_hover' => true,
             'draw_shadows' => true,
-            'popups_draggable' => true,
         );
         
         // Stored options
@@ -324,7 +323,6 @@ class CathRefExt {
                 $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
             }
             $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
-            $config[ 'popups_draggable' ] = isset( $_POST[ 'popups_draggable' ] );
             /*
             if( isset( $_POST[ '' ] ) ) {
                 
@@ -370,11 +368,6 @@ class CathRefExt {
             <input type="checkbox" name="draw_shadows" <?php
                 $config[ 'draw_shadows' ] ? _e( 'checked', 'catholic-reference' ) : ''
             ?> />Draw drop shadows
-            </div>
-            <div>
-            <input type="checkbox" name="popups_draggable" <?php
-                $config[ 'popups_draggable' ] ? _e( 'checked', 'catholic-reference' ) : ''
-            ?> />Make popups draggable
             </div>
             
             <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />
