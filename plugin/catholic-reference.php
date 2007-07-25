@@ -224,7 +224,9 @@ class CathRefExt {
         $range_strs = array();
         foreach( $ranges as $range ) {
             for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
-                $paras[] = $i;
+                if( $i >= 0 && $i <= 2865 ) {
+                    $paras[] = $i;
+                }
             }
             if( $range[ 'start' ] == $range[ 'end' ] ) {
                 $range_strs[] = $range[ 'start' ];
@@ -249,6 +251,7 @@ class CathRefExt {
         
         $popup .= "<div class='ccc_text'>";
         
+        $paragraphs_added = 0;
         foreach( $paras as $para ) {
             $x = ( (int)( $para / 100 ) ) * 100;
             $y = $x + 99;
@@ -266,6 +269,7 @@ class CathRefExt {
                         $popup .= "</p>";
                     }
                     $popup .= "</div>";
+                    $paragraphs_added++;
                 }
             }
         }
@@ -276,10 +280,13 @@ class CathRefExt {
         $popup1 .= $popup;
         $popup2 .= $popup;
         
-        $this->popups[] = $popup1;
-        $this->popups[] = $popup2;
-        
-        return "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+        if( $paragraphs_added > 0 ) {
+            $this->popups[] = $popup1;
+            $this->popups[] = $popup2;
+            return "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+        } else {
+            return $original_span;
+        }
     }
     
     function filter( $content ) {
