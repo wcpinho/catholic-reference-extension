@@ -2,8 +2,8 @@
 /*
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net
-Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text on hover.
-Version: 0.7.0
+Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
+Version: 0.8.0
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -24,6 +24,8 @@ CCC 1234,1237-1239
 CCC pp1234,1237-1239
 CCC paragraph 1234
 CCC paragraphs 1234,1237
+
+--------------------------------------
 
 Copyright (c) 2007 Pistos
 Released under the GPL license, version 2
@@ -54,11 +56,78 @@ class CathRefExt {
         'exo' => 2,
         'exod' => 2,
         'exodus' => 2,
+        'lv' => 3,
+        'lev' => 3,
+        'levit' => 3,
+        'leviticus' => 3,
+        'num' => 4,
+        'numbers' => 4,
+        'de' => 5,
+        'deu' => 5,
+        'deut' => 5,
+        'deuter' => 5,
+        'deutero' => 5,
+        'deuteronomy' => 5,
+        'jo' => 6,
+        'jos' => 6,
+        'josh' => 6,
+        'joshua' => 6,
+        'ju' => 7,
+        'jud' => 7,
+        'judges' => 7,
+        'ru' => 8,
+        'ruth' => 8,
+        '1 sa' => 9,
+        '1 sm' => 9,
+        '1 sam' => 9,
+        '1 samuel' => 9,
+        '2 sa' => 10,
+        '2 sm' => 10,
+        '2 sam' => 10,
+        '2 samuel' => 10,
+        '1 kn' => 11,
+        '1 kg' => 11,
+        '1 ki' => 11,
+        '1 kings' => 11,
+        '3 kn' => 11,
+        '3 kg' => 11,
+        '3 ki' => 11,
+        '3 kings' => 11,
+        '2 kn' => 12,
+        '2 kg' => 12,
+        '2 ki' => 12,
+        '2 kings' => 12,
+        '4 kn' => 12,
+        '4 kg' => 12,
+        '4 ki' => 12,
+        '4 kings' => 12,
+        '1 ch' => 13,
+        '1 chr' => 13,
+        '1 chron' => 13,
+        '1 chronicles' => 13,
+        '1 paralipomenon' => 13,
+        '2 ch' => 14,
+        '2 chr' => 14,
+        '2 chron' => 14,
+        '2 chronicles' => 14,
+        '2 paralipomenon' => 14,
     );
     
     public $book_names = array(
         1 => 'Genesis',
         2 => 'Exodus',
+        3 => 'Leviticus',
+        4 => 'Numbers',
+        5 => 'Deuteronomy',
+        6 => 'Joshua',
+        7 => 'Judges',
+        8 => 'Ruth',
+        9 => '1 Samuel',
+        10 => '2 Samuel',
+        11 => '1 Kings',
+        12 => '2 Kings',
+        13 => '1 Chronicles',
+        14 => '2 Chronicles',
     );
     
     private $wp_option_name = "catholic-reference-extension-options";
