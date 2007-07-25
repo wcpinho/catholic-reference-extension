@@ -124,7 +124,7 @@ class CathRefExt {
     }
         
     function substitute_scripture( $matches ) {
-        $retval = $matches[ 0 ];
+        $retval = $original_span = $matches[ 0 ];
         $lead_char = $matches[ 1 ];
         if( $lead_char == "!" ) {
             $retval = substr( $retval, 1 );
@@ -173,6 +173,7 @@ class CathRefExt {
                 
                 // Body
                 $popup .= "<div class='scripture_text'>";
+                $verses_added = 0;
                 $lines = file( $this->drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
                 foreach ( $lines as $line ) {
                     $parts = explode( "\t", $line, 3 );
@@ -184,6 +185,7 @@ class CathRefExt {
                             $popup .= "<div class='verse'>";
                             $popup .= "<span class='verse_number'>$line_verse</span>$line_text";
                             $popup .= "</div>";
+                            $verses_added++;
                         }
                     }
                 }
@@ -194,8 +196,12 @@ class CathRefExt {
                 $popup1 .= $popup;
                 $popup2 .= $popup;
                 
-                $this->popups[] = $popup1;
-                $this->popups[] = $popup2;
+                if( $verses_added > 0 ) {
+                    $this->popups[] = $popup1;
+                    $this->popups[] = $popup2;
+                } else {
+                    $retval = $original_span;
+                }
             }
         }
         
