@@ -79,6 +79,8 @@ class CathRefExt {
         // Defaults
         $config = array(
             'show_popup_on_hover' => true,
+            'draw_shadows' => true,
+            'popups_draggable' => true,
         );
         
         // Stored options
@@ -124,6 +126,7 @@ class CathRefExt {
     }
         
     function substitute_scripture( $matches ) {
+        $config = $this->get_config();
         $retval = $original_span = $matches[ 0 ];
         $lead_char = $matches[ 1 ];
         if( $lead_char == "!" ) {
@@ -161,8 +164,6 @@ class CathRefExt {
                 
                 $retval .= "</span>";
                 
-                $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
-                $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\">";
                 $popup = "";
                     
                 // Header
@@ -193,12 +194,16 @@ class CathRefExt {
                 $popup .= "</div>";
                 $popup .= "</div>";
                 
-                $popup1 .= $popup;
-                $popup2 .= $popup;
-                
                 if( $verses_added > 0 ) {
+                    $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
+                    $popup1 .= $popup;
                     $this->popups[] = $popup1;
-                    $this->popups[] = $popup2;
+                    
+                    if( $config[ 'draw_shadows' ] ) {
+                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\">";
+                        $popup2 .= $popup;
+                        $this->popups[] = $popup2;
+                    }
                 } else {
                     $retval = $original_span;
                 }
@@ -318,6 +323,8 @@ class CathRefExt {
             if( isset( $_POST[ 'show_popup_on_hover' ] ) ) {
                 $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
             }
+            $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
+            $config[ 'popups_draggable' ] = isset( $_POST[ 'popups_draggable' ] );
             /*
             if( isset( $_POST[ '' ] ) ) {
                 
@@ -340,6 +347,8 @@ class CathRefExt {
         
         <form method="POST" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
         
+            <h3>General</h3>
+        
             <div>
             Show popups when references are:
             <input type="radio" name="show_popup_on_hover" value="1" <?php
@@ -348,6 +357,24 @@ class CathRefExt {
             <input type="radio" name="show_popup_on_hover" value="0" <?php
                 ( ! $config[ 'show_popup_on_hover' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
             ?> />clicked
+            </div>
+            
+            <h3>Render Speed</h3>
+            
+            <div>
+            Turning these options off will reduce the size of your pages, thereby
+            making your pages load faster.
+            </div>
+            
+            <div>
+            <input type="checkbox" name="draw_shadows" <?php
+                $config[ 'draw_shadows' ] ? _e( 'checked', 'catholic-reference' ) : ''
+            ?> />Draw drop shadows
+            </div>
+            <div>
+            <input type="checkbox" name="popups_draggable" <?php
+                $config[ 'popups_draggable' ] ? _e( 'checked', 'catholic-reference' ) : ''
+            ?> />Make popups draggable
             </div>
             
             <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />
