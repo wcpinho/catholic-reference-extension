@@ -363,8 +363,10 @@ class CathRefExt {
     }
     
     function filter( $content ) {
+        $book_regexp = join( '|', array_keys( $this->book_numbers ) );
+    
         $content = preg_replace_callback(
-            "/(.)((?:\\d+ +)?[A-Z][a-z]+)\\.? +(\\d+)(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/",
+            "/(.)($book_regexp)\\.? +(\\d+)" . "(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/i",
             array( &$this, 'substitute_scripture' ),
             $content
         );
