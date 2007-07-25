@@ -3,6 +3,12 @@ var cathref_popup_timers = new Object;
 var cathref_popup_showing = new Object;
 var cathref_ref_timers = new Object;
 
+function extract_type_from_class( obj ) {
+    var regexp = /^([^_]+)_/;
+    var match = ( obj.attr( 'class' ) ).match( regexp );
+    return match[ 1 ];
+}
+
 function hide_popup( id, type ) {
     var obj = popup_by_id( id, type );
     if( obj != null ) {
@@ -40,33 +46,42 @@ function shadow_by_id( id, type ) {
     return $( 'div.' + type + '_popup_shadow[@popid="' + id + '"]' );
 }
 
+function reference_activated( event ) {
+    var this_obj = $( this );
+    var id = $( this ).attr( 'refid' );
+    cathref_ref_timers[ id ] = setTimeout(
+        function() {
+            clearTimeout( cathref_popup_timers[ id ] );
+            if( ! cathref_popup_showing[ id ] ) {
+                show_popup(
+                    id,
+                    event,
+                    extract_type_from_class( this_obj )
+                );
+            }
+        },
+        200
+    );
+}
+function reference_deactivated() {
+    var this_obj = $( this );
+    var id = $( this ).attr( 'refid' );
+    clearTimeout( cathref_ref_timers[ id ] );
+    cathref_popup_timers[ id ] = setTimeout(
+        function() {
+            if( ! cathref_popup_activated[ id ] ) {
+                hide_popup( id, extract_type_from_class( this_obj ) );
+            }
+        },
+        1500
+    );
+}
+
 $(document).ready( function() {
     
     $( '.scripture_reference' ).hover(
-        function( event ) {
-            var id = $( this ).attr( 'refid' );
-            cathref_ref_timers[ id ] = setTimeout(
-                function() {
-                    clearTimeout( cathref_popup_timers[ id ] );
-                    if( ! cathref_popup_showing[ id ] ) {
-                        show_popup( id, event, 'scripture' );
-                    }
-                },
-                200
-            );
-        },
-        function() {
-            var id = $( this ).attr( 'refid' );
-            clearTimeout( cathref_ref_timers[ id ] );
-            cathref_popup_timers[ id ] = setTimeout(
-                function() {
-                    if( ! cathref_popup_activated[ id ] ) {
-                        hide_popup( id, 'scripture' );
-                    }
-                },
-                1500
-            );
-        }
+        reference_activated,
+        reference_deactivated
     );
     $( '.scripture_popup' ).hover(
         function() {
@@ -117,11 +132,10 @@ $(document).ready( function() {
     
     $( '.cathref_close_button' ).click(
         function() {
-            var regexp = /^([^_]+)_/;
-            var match = ($( this ).parent().parent().attr( 'class' ) ).match( regexp );
+            var parent = $( this ).parent().parent();
             hide_popup(
                 $( this ).attr( 'closeid' ),
-                match[ 1 ]
+                extract_type_from_class( parent )
             );
         }
     );
