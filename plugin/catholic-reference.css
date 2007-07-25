@@ -1,11 +1,11 @@
-.close_button {
+.cathref_close_button {
     background: url( '/wordpress/wp-content/plugins/catholic-reference/close-button.png' );
     width: 16px;
     height: 16px;
     float: right;
     padding: 0px;
 }
-.close_button_highlight {
+.cathref_close_button_highlight {
     background: #CCDDFF;
     z-index: 3;
     opacity: 0.45;
@@ -13,7 +13,7 @@
     height: 100%;
     display: none;
 }
-.close_button:hover {
+.cathref_close_button:hover {
     cursor: pointer;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .verse {
-    margin-top: 0.25em
+    margin-top: 0.25em;
     margin-bottom: 0.25em;
 }
 
@@ -84,7 +84,14 @@
 
 /* ----------------------------------- */
 
-.cathref_options {
+.cathref_config {
     padding: 1em;
     margin: 1em;
+}
+
+.cathref_config_notice {
+    padding: 1em;
+    margin: 1em;
+    border: 1px solid #000066;
+    background-color: #AAF6FF;
 }

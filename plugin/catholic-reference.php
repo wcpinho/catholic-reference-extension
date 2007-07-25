@@ -60,6 +60,8 @@ class CathRefExt {
         1 => 'Genesis',
         2 => 'Exodus',
     );
+    
+    private $wp_option_name = "catholic-reference-extension-options";
 
     function __construct() {
         $this->drb_dir = "/misc/svn/catholic-reference/trunk/texts/drb";
@@ -70,6 +72,31 @@ class CathRefExt {
         add_action( 'admin_head', array( &$this, 'admin_header' ) );
         add_filter( 'the_content', array( &$this, 'filter' ) );
         add_action( 'admin_menu', array( &$this, 'options_page_adder' ) );
+        add_action( 'activate_catholic-reference/catholic-reference.php', array( &$this, 'on_activation' ) );
+    }
+    
+    function get_config() {
+        // Defaults
+        $config = array(
+            'show_popup_on_hover' => true,
+        );
+        
+        // Stored options
+        $stored_config = get_option( $this->wp_option_name );
+        if( ! empty( $stored_config ) ) {
+            foreach( $stored_config as $key => $value ) {
+                $config[ $key ] = $value;
+            }
+        }
+        
+        // Save options
+        update_option( $this->wp_option_name, $config );
+        
+        return $config;
+    }
+    
+    function on_activation() {
+        get_config();
     }
     
     /* ****************************************** */
@@ -85,6 +112,8 @@ class CathRefExt {
     function admin_header() {
         ?>
         <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
+        <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
+        <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.js"></script>
         <?php
     }
         
@@ -132,7 +161,7 @@ class CathRefExt {
                     
                 // Header
                 $popup .= "<div class='scripture_header'>";
-                $popup .= "<div class='close_button' closeid='$id'><div class='close_button_highlight'></div></div>";
+                $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
                 $popup .= $this->book_names[ $book_number ] . " $chapter$verse_string";
                 $popup .= "</div>";
                 
@@ -200,7 +229,7 @@ class CathRefExt {
             
         // Header
         $popup .= "<div class='ccc_header'>";
-        $popup .= "<div class='close_button' closeid='$id'><div class='close_button_highlight'></div></div>";
+        $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
         $popup .= "CCC " . join( ',', $range_strs );
         $popup .= "</div>";
         
@@ -265,8 +294,48 @@ class CathRefExt {
      */
     
     function options_page() {
+        $config = $this->get_config();
+        if( isset( $_POST[ 'cathref_submit' ] ) ) {
+            if( isset( $_POST[ 'show_popup_on_hover' ] ) ) {
+                $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
+            }
+            /*
+            if( isset( $_POST[ '' ] ) ) {
+                
+            }
+            */
+            
+            update_option( $this->wp_option_name, $config );
+            ?>
+            <div class="cathref_config_notice">
+            <?php
+            _e( 'Configuration saved.', 'catholic-reference' );
+            ?>
+            </div>
+            <?php
+        }
         ?>
-        <div class="cathref_options">foo</div>
+        <div class="cathref_config">
+        
+        <h2>Catholic Reference Extension</h2>
+        
+        <form method="POST" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+        
+            <div>
+            Show popups when references are:
+            <input type="radio" name="show_popup_on_hover" value="1" <?php
+                $config[ 'show_popup_on_hover' ] ? _e( 'checked', 'catholic-reference' ) : ''
+            ?> />hovered over &nbsp;
+            <input type="radio" name="show_popup_on_hover" value="0" <?php
+                ( ! $config[ 'show_popup_on_hover' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
+            ?> />clicked
+            </div>
+            
+            <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />
+        
+        </form>
+        
+        </div>
         <?php
     }
     

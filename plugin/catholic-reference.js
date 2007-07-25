@@ -115,7 +115,7 @@ $(document).ready( function() {
     );
     
     
-    $( '.close_button' ).click(
+    $( '.cathref_close_button' ).click(
         function() {
             var regexp = /^([^_]+)_/;
             var match = ($( this ).parent().parent().attr( 'class' ) ).match( regexp );
@@ -125,12 +125,22 @@ $(document).ready( function() {
             );
         }
     );
-    $( '.close_button' ).hover(
+    $( '.cathref_close_button' ).hover(
         function() {
-            $( this ).children( '.close_button_highlight' ).fadeIn( 'fast' );
+            $( this ).children( '.cathref_close_button_highlight' ).fadeIn( 'fast' );
         },
         function() {
-            $( this ).children( '.close_button_highlight' ).fadeOut( 'slow' );
+            $( this ).children( '.cathref_close_button_highlight' ).fadeOut( 'slow' );
         }
-    )
+    );
+    
+    /* -------------------------
+       Admin
+    */
+    
+    $( '.cathref_config input' ).click(
+        function() {
+            $( '.cathref_config_notice' ).html( '&nbsp;' );
+        }
+    );
 } );
