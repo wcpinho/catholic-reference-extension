@@ -79,10 +79,6 @@ function reference_deactivated() {
 
 $(document).ready( function() {
     
-    $( '.scripture_reference' ).hover(
-        reference_activated,
-        reference_deactivated
-    );
     $( '.scripture_popup' ).hover(
         function() {
             var id = $( this ).attr( 'popid' );
@@ -93,32 +89,6 @@ $(document).ready( function() {
         }
     );
     
-    $( '.ccc_reference' ).hover(
-        function( event ) {
-            var id = $( this ).attr( 'refid' );
-            cathref_ref_timers[ id ] = setTimeout(
-                function() {
-                    clearTimeout( cathref_popup_timers[ id ] );
-                    if( ! cathref_popup_showing[ id ] ) {
-                        show_popup( id, event, 'ccc' );
-                    }
-                },
-                200
-            );
-        },
-        function() {
-            var id = $( this ).attr( 'refid' );
-            clearTimeout( cathref_ref_timers[ id ] );
-            cathref_popup_timers[ id ] = setTimeout(
-                function() {
-                    if( ! cathref_popup_activated[ id ] ) {
-                        hide_popup( id, 'ccc' );
-                    }
-                },
-                1500
-            );
-        }
-    );
     $( '.ccc_popup' ).hover(
         function() {
             var id = $( this ).attr( 'popid' );

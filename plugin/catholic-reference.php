@@ -107,6 +107,12 @@ class CathRefExt {
         <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
         <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.js"></script>
         <?php
+        $config = $this->get_config();
+        if( $config[ 'show_popup_on_hover' ] ) {
+            ?><script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/js/option-hover.js"></script><?php
+        } else {
+            ?><script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/js/option-click.js"></script><?php
+        }
     }
     
     function admin_header() {
