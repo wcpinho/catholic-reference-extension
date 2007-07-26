@@ -104,14 +104,14 @@ $(document).ready( function() {
     window_height = get_window_height();
     
     // Size the shadow divs
-    var s = '';
-    $.each(
-        $( '.scripture_popup|.ccc_popup' ),
-        function( i, div ) {
-            s = s + div.attr( 'popid' );
+    $( '.scripture_popup,.ccc_popup' ).each(
+        function( i ) {
+            var id = $( this ).attr( 'popid' );
+            var shadow = shadow_by_id( id, extract_type_from_class( $(this) ) );
+            shadow.css( 'width', $(this).css( 'width' ) );
+            shadow.css( 'height', $(this).css( 'height' ) );
         }
     );
-    alert( s );
     
     $( '.scripture_popup' ).hover(
         function() {
