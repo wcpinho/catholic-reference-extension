@@ -2,6 +2,7 @@ var cathref_popup_activated = new Object;
 var cathref_popup_timers = new Object;
 var cathref_popup_showing = new Object;
 var cathref_ref_timers = new Object;
+var window_height = 0;
 
 function extract_type_from_class( obj ) {
     var regexp = /^([^_]+)_/;
@@ -25,17 +26,39 @@ function hide_popup( id, type ) {
     }
 }
 
+// From http://www.howtocreate.co.uk/tutorials/javascript/browserwindow
+function get_window_height() {
+    var height = 0;
+    if( typeof( window.innerHeight ) == 'number' ) {
+        //Non-IE
+        height = window.innerHeight;
+    } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+        //IE 6+ in 'standards compliant mode'
+        height = document.documentElement.clientHeight;
+    }
+    return height;
+}
+
 function show_popup( id, event, type ) {
     var obj = popup_by_id( id, type );
     cathref_popup_showing[ id ] = true;
     
-    obj.css( 'top',  event.pageY + 10 );
-    obj.css( 'left', event.pageX + 10 );
+    var y = event.pageY + 10;
+    var x = event.pageX + 10;
+    if( y + 370 > window_height + window.pageYOffset ) {
+        y = window_height + window.pageYOffset - 370;
+    }
+    if( y < 0 ) {
+        y = 0;
+    }
+    
+    obj.css( 'top', y );
+    obj.css( 'left', x );
     obj.fadeIn( 'fast' );
     
     var shadow = shadow_by_id( id, type );
-    shadow.css( 'top',  event.pageY + 20 );
-    shadow.css( 'left', event.pageX + 20 );
+    shadow.css( 'top',  y + 10 );
+    shadow.css( 'left', x + 10 );
     shadow.fadeIn( 'slow' );
 }
 
@@ -78,6 +101,7 @@ function reference_deactivated() {
 }
 
 $(document).ready( function() {
+    window_height = get_window_height();
     
     $( '.scripture_popup' ).hover(
         function() {
