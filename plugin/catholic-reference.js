@@ -103,16 +103,6 @@ function reference_deactivated() {
 $(document).ready( function() {
     window_height = get_window_height();
     
-    // Size the shadow divs
-    $( '.scripture_popup,.ccc_popup' ).each(
-        function( i ) {
-            var id = $( this ).attr( 'popid' );
-            var shadow = shadow_by_id( id, extract_type_from_class( $(this) ) );
-            shadow.css( 'width', $(this).css( 'width' ) );
-            shadow.css( 'height', $(this).css( 'height' ) );
-        }
-    );
-    
     $( '.scripture_popup' ).hover(
         function() {
             var id = $( this ).attr( 'popid' );

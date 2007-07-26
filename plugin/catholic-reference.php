@@ -549,8 +549,8 @@ class CathRefExt {
                     $this->popups[] = $popup1;
                     
                     if( $config[ 'draw_shadows' ] ) {
-                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
-                        // $popup2 .= $popup;
+                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\">";
+                        $popup2 .= $popup;
                         $this->popups[] = $popup2;
                     }
                 } else {
@@ -632,8 +632,7 @@ class CathRefExt {
         $popup .= "</div>";
         
         $popup1 .= $popup;
-        // $popup2 .= $popup;
-        $popup2 .= "</div>";
+        $popup2 .= $popup;
         
         if( $paragraphs_added > 0 ) {
             $this->popups[] = $popup1;
