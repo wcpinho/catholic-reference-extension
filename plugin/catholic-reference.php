@@ -754,6 +754,11 @@ class CathRefExt {
             ?> />clicked
             </div>
             
+            <div>
+            Douay-Rheims Bible directory:
+            <input type="text" name="drb_dir" value="<?php echo $config[ 'drb_dir' ] ?>" size="40" />
+            </div>
+            
             <h3>Render Speed</h3>
             
             <div>
