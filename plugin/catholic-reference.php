@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Catholic Reference Extension
-Plugin URI: http://blog.purepistos.net
+Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
 Version: 0.8.0
 Author: Pistos
@@ -414,8 +414,6 @@ class CathRefExt {
     private $wp_option_name = "catholic-reference-extension-options";
 
     function __construct() {
-        $this->drb_dir = "/misc/svn/catholic-reference/trunk/texts/drb";
-        $this->ccc_dir = "/misc/svn/catholic-reference/trunk/texts/ccc";
         $this->popups = array();
 
         add_action( 'wp_head', array( &$this, 'header' ) );
@@ -430,6 +428,8 @@ class CathRefExt {
         $config = array(
             'show_popup_on_hover' => true,
             'draw_shadows' => true,
+            'drb_dir' => dirname( __FILE__ ) . '/texts/drb',
+            'ccc_dir' => dirname( __FILE__ ) . '/texts/ccc',
         );
         
         // Stored options
@@ -524,7 +524,7 @@ class CathRefExt {
                 // Body
                 $popup .= "<div class='scripture_text'>";
                 $verses_added = 0;
-                $lines = file( $this->drb_dir . "/$book_number.book", FILE_IGNORE_NEW_LINES );
+                $lines = file( $config[ 'drb_dir' ] . "/$book_number.book", FILE_IGNORE_NEW_LINES );
                 foreach ( $lines as $line ) {
                     $parts = explode( "\t", $line, 3 );
                     $line_chapter = $parts[ 0 ];
@@ -609,7 +609,7 @@ class CathRefExt {
         foreach( $paras as $para ) {
             $x = ( (int)( $para / 100 ) ) * 100;
             $y = $x + 99;
-            $lines = file( $this->ccc_dir . "/ccc-$x-$y.txt" , FILE_IGNORE_NEW_LINES );
+            $lines = file( $config[ 'ccc_dir' ] . "/ccc-$x-$y.txt" , FILE_IGNORE_NEW_LINES );
             foreach ( $lines as $line ) {
                 $parts = explode( "\t", $line );
                 $file_para = array_shift( $parts );
@@ -667,9 +667,30 @@ class CathRefExt {
     /* ******************************************
      * Options and configuration
      */
+        
+    // Ensure that we have the texts to use (Scripture, Catechism, etc.)
+    // Returns NULL if all texts are found.
+    // Returns a notice message in a string for any missing texts.
+    function check_texts( $config ) {
+        $message = "";
+        
+        if( ! file_exists( $config[ 'drb_dir' ] . "/1.book" ) ) {
+            $message .= "Scripture text files not found.  Scripture references will not be active.<br />";
+        }
+        if( ! file_exists( $config[ 'ccc_dir' ] . "/ccc-0-99.txt" ) ) {
+            $message .= "Catechism text files not found.  References to the Catechism will not be active.<br />";
+        }
+        
+        if( ! empty( $message ) ) {
+            $message .= " The texts used by the CRE can be obtained <a href='http://blog.purepistos.net/index.php/cre/' target='cre'>here</a>.";
+        }
+        
+        return ( empty( $message ) ? NULL : $message );
+    }
     
     function options_page() {
         $config = $this->get_config();
+        $notices = $this->check_texts( $config );
         if( isset( $_POST[ 'cathref_submit' ] ) ) {
             if( isset( $_POST[ 'show_popup_on_hover' ] ) ) {
                 $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
@@ -694,6 +715,12 @@ class CathRefExt {
         <div class="cathref_config">
         
         <h2>Catholic Reference Extension</h2>
+        
+        <?php
+        if( $notices ) {
+            ?><div class="cathref_config_notice"><?php echo $notices ?></div><?php
+        }
+        ?>
         
         <form method="POST" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
         
@@ -722,6 +749,7 @@ class CathRefExt {
             ?> />Draw drop shadows
             </div>
             
+            <br />
             <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />
         
         </form>
