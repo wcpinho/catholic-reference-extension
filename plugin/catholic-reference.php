@@ -450,6 +450,14 @@ class CathRefExt {
         get_config();
     }
     
+    function drb_text_exists() {
+        return( file_exists( $config[ 'drb_dir' ] . "/1.book" ) );
+    }
+    
+    function ccc_text_exists() {
+        return( file_exists( $config[ 'ccc_dir' ] . "/ccc-0-99.txt" ) );
+    }
+        
     /* ****************************************** */
     
     function header() {
@@ -646,16 +654,20 @@ class CathRefExt {
     function filter( $content ) {
         $book_regexp = join( '|', array_keys( $this->book_numbers ) );
     
-        $content = preg_replace_callback(
-            "/(.)($book_regexp)\\.? +(\\d+)" . "(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/i",
-            array( &$this, 'substitute_scripture' ),
-            $content
-        );
-        $content = preg_replace_callback(
-            "/CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
-            array( &$this, 'substitute_ccc' ),
-            $content
-        );
+        if( $this->drb_text_exists() ) {
+            $content = preg_replace_callback(
+                "/(.)($book_regexp)\\.? +(\\d+)" . "(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/i",
+                array( &$this, 'substitute_scripture' ),
+                $content
+            );
+        }
+        if( $this->ccc_text_exists() ) {
+            $content = preg_replace_callback(
+                "/CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
+                array( &$this, 'substitute_ccc' ),
+                $content
+            );
+        }
         
         foreach ( $this->popups as $popup ) {
             $content .= $popup;
@@ -674,10 +686,10 @@ class CathRefExt {
     function check_texts( $config ) {
         $message = "";
         
-        if( ! file_exists( $config[ 'drb_dir' ] . "/1.book" ) ) {
+        if( ! $this->drb_text_exists() ) {
             $message .= "Scripture text files not found.  Scripture references will not be active.<br />";
         }
-        if( ! file_exists( $config[ 'ccc_dir' ] . "/ccc-0-99.txt" ) ) {
+        if( ! $this->ccc_text_exists() ) {
             $message .= "Catechism text files not found.  References to the Catechism will not be active.<br />";
         }
         
@@ -694,6 +706,12 @@ class CathRefExt {
         if( isset( $_POST[ 'cathref_submit' ] ) ) {
             if( isset( $_POST[ 'show_popup_on_hover' ] ) ) {
                 $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
+            }
+            if( isset( $_POST[ 'drb_dir' ] ) ) {
+                $config[ 'drb_dir' ] = $_POST[ 'drb_dir' ];
+            }
+            if( isset( $_POST[ 'ccc_dir' ] ) ) {
+                $config[ 'ccc_dir' ] = $_POST[ 'ccc_dir' ];
             }
             $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
             /*
