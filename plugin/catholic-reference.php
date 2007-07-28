@@ -451,10 +451,12 @@ class CathRefExt {
     }
     
     function drb_text_exists() {
+        $config = $this->get_config();
         return( file_exists( $config[ 'drb_dir' ] . "/1.book" ) );
     }
     
     function ccc_text_exists() {
+        $config = $this->get_config();
         return( file_exists( $config[ 'ccc_dir' ] . "/ccc-0-99.txt" ) );
     }
         
@@ -571,6 +573,7 @@ class CathRefExt {
     }
     
     function substitute_ccc( $matches ) {
+        $config = $this->get_config();
         $original_span = array_shift( $matches );
         $ranges = array();
         foreach ( $matches as $range ) {
@@ -694,15 +697,14 @@ class CathRefExt {
         }
         
         if( ! empty( $message ) ) {
-            $message .= " The texts used by the CRE can be obtained <a href='http://blog.purepistos.net/index.php/cre/' target='cre'>here</a>.";
+            $message .= " The texts used by the CRE can be obtained <a href='http://blog.purepistos.net/index.php/cre/' target='cre'>here</a>.<br />";
+            $this->notices .= $message;
         }
-        
-        return ( empty( $message ) ? NULL : $message );
     }
     
     function options_page() {
         $config = $this->get_config();
-        $notices = $this->check_texts( $config );
+        $this->notices = "";
         if( isset( $_POST[ 'cathref_submit' ] ) ) {
             if( isset( $_POST[ 'show_popup_on_hover' ] ) ) {
                 $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
@@ -721,24 +723,26 @@ class CathRefExt {
             */
             
             update_option( $this->wp_option_name, $config );
-            ?>
+            $this->notices .= __( 'Configuration saved.<br />', 'catholic-reference' );
+        }
+        $this->check_texts( $config );
+        ?>
+        
+        <?php
+        if( ! empty( $this->notices ) ) {
+        ?>
             <div class="cathref_config_notice">
             <?php
-            _e( 'Configuration saved.', 'catholic-reference' );
+            echo $this->notices;
             ?>
             </div>
             <?php
         }
         ?>
+        
         <div class="cathref_config">
         
         <h2>Catholic Reference Extension</h2>
-        
-        <?php
-        if( $notices ) {
-            ?><div class="cathref_config_notice"><?php echo $notices ?></div><?php
-        }
-        ?>
         
         <form method="POST" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
         
@@ -755,8 +759,12 @@ class CathRefExt {
             </div>
             
             <div>
-            Douay-Rheims Bible directory:
+            Douay-Rheims Bible text directory:
             <input type="text" name="drb_dir" value="<?php echo $config[ 'drb_dir' ] ?>" size="40" />
+            </div>
+            <div>
+            Catechism of the Catholic Church text directory:
+            <input type="text" name="ccc_dir" value="<?php echo $config[ 'ccc_dir' ] ?>" size="40" />
             </div>
             
             <h3>Render Speed</h3>
