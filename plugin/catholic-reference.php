@@ -447,7 +447,7 @@ class CathRefExt {
     }
     
     function on_activation() {
-        get_config();
+        $this->get_config();
     }
     
     function drb_text_exists() {
