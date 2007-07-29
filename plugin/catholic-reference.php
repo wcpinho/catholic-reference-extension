@@ -559,8 +559,8 @@ class CathRefExt {
                     $this->popups[] = $popup1;
                     
                     if( $config[ 'draw_shadows' ] ) {
-                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\">";
-                        $popup2 .= $popup;
+                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
+                        // $popup2 .= $popup;
                         $this->popups[] = $popup2;
                     }
                 } else {
@@ -603,7 +603,7 @@ class CathRefExt {
         $id = ( microtime() + rand( 0, 1000 ) );
         
         $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
-        $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\">";
+        $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\"></div>";
         $popup = "";
             
         // Header
@@ -643,7 +643,7 @@ class CathRefExt {
         $popup .= "</div>";
         
         $popup1 .= $popup;
-        $popup2 .= $popup;
+        // $popup2 .= $popup;
         
         if( $paragraphs_added > 0 ) {
             $this->popups[] = $popup1;
@@ -675,7 +675,7 @@ class CathRefExt {
         foreach ( $this->popups as $popup ) {
             $content .= $popup;
         }
-    
+        
         return $content;
     }
     
@@ -765,19 +765,6 @@ class CathRefExt {
             <div>
             Catechism of the Catholic Church text directory:
             <input type="text" name="ccc_dir" value="<?php echo $config[ 'ccc_dir' ] ?>" size="40" />
-            </div>
-            
-            <h3>Render Speed</h3>
-            
-            <div>
-            Turning these options off will reduce the size of your pages, thereby
-            making your pages load faster.
-            </div>
-            
-            <div>
-            <input type="checkbox" name="draw_shadows" <?php
-                $config[ 'draw_shadows' ] ? _e( 'checked', 'catholic-reference' ) : ''
-            ?> />Draw drop shadows
             </div>
             
             <br />

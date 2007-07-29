@@ -57,6 +57,8 @@ function show_popup( id, event, type ) {
     obj.fadeIn( 'fast' );
     
     var shadow = shadow_by_id( id, type );
+    shadow.height( obj.height() );
+    shadow.width( obj.width() );
     shadow.css( 'top',  y + 10 );
     shadow.css( 'left', x + 10 );
     shadow.fadeIn( 'slow' );
