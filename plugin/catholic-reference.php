@@ -411,6 +411,48 @@ class CathRefExt {
         73 => 'Revelation',
     );
     
+    private $hebrew_books = array(
+        1 => '01',
+        2 => '02',
+        3 => '03',
+        4 => '04',
+        5 => '05',
+        6 => '06',
+        7 => '07',
+        9 => '08a',
+        10 => '08b',
+        11 => '09a',
+        12 => '09b',
+        27 => '10',
+        28 => '11',
+        31 => '12',
+        33 => '13',
+        34 => '14',
+        35 => '15',
+        36 => '16',
+        37 => '17',
+        38 => '18',
+        39 => '19',
+        40 => '20',
+        41 => '21',
+        42 => '22',
+        43 => '23',
+        44 => '24',
+        13 => '25a',
+        14 => '25b',
+        21 => '26',
+        20 => '27',
+        22 => '28',
+        8 => '29',
+        24 => '30',
+        23 => '31',
+        29 => '32',
+        19 => '33',
+        32 => '34',
+        15 => '35a',
+        16 => '35b',
+    );
+    
     private $wp_option_name = "catholic-reference-extension-options";
 
     function __construct() {
@@ -532,13 +574,17 @@ class CathRefExt {
                 $popup .= "<span class='passage'>" . $passage . "</span><br />";
                 $popup .= "<span class='alternates'>View in: ";
                 
+                // NAB
                 $book_no_spaces = str_replace( ' ', '', $this->book_names[ $book_number ] );
                 $nab_book = strtolower( $book_no_spaces );
                 $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
                 
+                // NIV
                 $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                // KJV
                 $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
                 
+                // Latin Vulgate
                 if( $book_number < 47 ) {
                     $vulg_testament = 0;
                     $vulg_book = $book_number;
@@ -549,8 +595,16 @@ class CathRefExt {
                 $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
                 
                 if( $book_number < 47 ) {
+                    // Septuagint (LXX)
                     $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                    // Hebrew - Masoretic Text
+                    $hbook = $this->hebrew_books[ $book_number ];
+                    if( $hbook ) {
+                        $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
+                        $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                    }
                 } else {
+                    // Nestle-Aland Greek NT
                     $nt_book = $book_number - 46;
                     $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
                 }
