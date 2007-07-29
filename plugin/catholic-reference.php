@@ -531,7 +531,8 @@ class CathRefExt {
                 $popup .= "<span class='passage'>" . $this->book_names[ $book_number ] . " $chapter$verse_string</span><br />";
                 $popup .= "<span class='alternates'>View in: ";
                 
-                $nab_book = str_replace( ' ', '', strtolower( $this->book_names[ $book_number ] ) );
+                $book_no_spaces = str_replace( ' ', '', $this->book_names[ $book_number ] );
+                $nab_book = strtolower( $book_no_spaces );
                 $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
                 
                 if( $book_number < 47 ) {
@@ -542,6 +543,13 @@ class CathRefExt {
                     $vulg_book = $book_number - 46;
                 }
                 $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                
+                if( $book_number < 47 ) {
+                    $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                } else {
+                    $nt_book = $book_number - 46;
+                    $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
+                }
                 
                 $popup .= "</span>";
                 $popup .= "</div>";
