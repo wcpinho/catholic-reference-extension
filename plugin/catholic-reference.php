@@ -528,12 +528,16 @@ class CathRefExt {
                 // Header
                 $popup .= "<div class='scripture_header'>";
                 $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-                $popup .= "<span class='passage'>" . $this->book_names[ $book_number ] . " $chapter$verse_string</span><br />";
+                $passage = $this->book_names[ $book_number ] . " $chapter$verse_string";
+                $popup .= "<span class='passage'>" . $passage . "</span><br />";
                 $popup .= "<span class='alternates'>View in: ";
                 
                 $book_no_spaces = str_replace( ' ', '', $this->book_names[ $book_number ] );
                 $nab_book = strtolower( $book_no_spaces );
                 $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
+                
+                $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
                 
                 if( $book_number < 47 ) {
                     $vulg_testament = 0;
