@@ -528,7 +528,22 @@ class CathRefExt {
                 // Header
                 $popup .= "<div class='scripture_header'>";
                 $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-                $popup .= $this->book_names[ $book_number ] . " $chapter$verse_string";
+                $popup .= "<span class='passage'>" . $this->book_names[ $book_number ] . " $chapter$verse_string</span><br />";
+                $popup .= "<span class='alternates'>View in: ";
+                
+                $nab_book = str_replace( ' ', '', strtolower( $this->book_names[ $book_number ] ) );
+                $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
+                
+                if( $book_number < 47 ) {
+                    $vulg_testament = 0;
+                    $vulg_book = $book_number;
+                } else {
+                    $vulg_testament = 1;
+                    $vulg_book = $book_number - 46;
+                }
+                $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                
+                $popup .= "</span>";
                 $popup .= "</div>";
                 
                 // Body

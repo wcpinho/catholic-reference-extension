@@ -51,9 +51,14 @@
     color: #000000;
 }
 
-.scripture_header, .ccc_header {
+.scripture_header .passage, .ccc_header {
     font-size: 12pt;
     font-weight: bold;
+}
+
+.scripture_header .alternates {
+    font-size: 10pt;
+    font-weight: normal;
 }
 
 .scripture_text, .ccc_text {

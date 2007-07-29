@@ -2,6 +2,10 @@
 
 Thank you for downloading the Catholic Reference Extension for Wordpress!
 
+The CRE for Wordpress requires PHP 5.  It also relies on jQuery, which comes
+with Wordpress 2.2+.  If you do not have a file /wp-includes/js/jquery/jquery.js,
+download jquery.js from http://jquery.com and put it there.
+
 To install the CRE, simply move the unpacked contents of this package to your
 wordpress plugin directory.  This is normally /wordpress-root/wp-content/plugins,
 where /wordpress-root is the directory where Wordpress is installed.
