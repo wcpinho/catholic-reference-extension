@@ -48,6 +48,8 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 class CathRefExt {
+    public $cathref_version = "0.8.0";
+    
     public $book_numbers = array(
         'ge' => 1,
         'gen' => 1,
@@ -454,11 +456,13 @@ class CathRefExt {
     );
     
     private $wp_option_name = "catholic-reference-extension-options";
+    public $cathref_site = "http://blog.purepistos.net/index.php/cre";
 
     function __construct() {
         $this->popups = array();
 
         add_action( 'wp_head', array( &$this, 'header' ) );
+        add_action( 'wp_footer', array( &$this, 'footer' ) );
         add_action( 'admin_head', array( &$this, 'admin_header' ) );
         add_filter( 'the_content', array( &$this, 'filter' ) );
         add_action( 'admin_menu', array( &$this, 'options_page_adder' ) );
@@ -524,6 +528,15 @@ class CathRefExt {
         <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
         <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.js"></script>
         <?php
+    }
+    
+    function footer() {
+        ?>
+        <div class="cathref_footer">
+        Scripture and Catechism references powered by
+        <a href="<?php echo $cathref_site; ?>" title="the Catholic Reference Extension for Wordpress">the CRE</a>.
+        </div>
+        <?
     }
         
     function substitute_scripture( $matches ) {
@@ -778,7 +791,7 @@ class CathRefExt {
         }
         
         if( ! empty( $message ) ) {
-            $message .= " The texts used by the CRE can be obtained <a href='http://blog.purepistos.net/index.php/cre/' target='cre'>here</a>.<br />";
+            $message .= " The texts used by the CRE can be obtained <a href='$cathref_site' target='cre'>here</a>.<br />";
             $this->notices .= $message;
         }
     }
