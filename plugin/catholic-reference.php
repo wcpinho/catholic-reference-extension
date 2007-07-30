@@ -526,7 +526,7 @@ class CathRefExt {
         ?>
         <style type="text/css">
             .scripture_popup, .scripture_popup_shadow, .ccc_popup, .ccc_popup_shadow {
-                width: <?php echo( $config[ 'popup_width' ] ); ?>px;
+                width: <?php echo( $config[ 'popup_width' ] ); ?>pixels;
             }
         </style>
         <?php
