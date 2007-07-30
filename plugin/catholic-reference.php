@@ -476,6 +476,7 @@ class CathRefExt {
             'draw_shadows' => true,
             'drb_dir' => dirname( __FILE__ ) . '/texts/drb',
             'ccc_dir' => dirname( __FILE__ ) . '/texts/ccc',
+            'popup_width' => 300,
         );
         
         // Stored options
@@ -509,6 +510,7 @@ class CathRefExt {
     /* ****************************************** */
     
     function header() {
+        $config = $this->get_config();
         $cathref_plugin_dir = get_settings( 'siteurl' ) . "/wp-content/plugins/catholic-reference";
         ?>
         <link rel="stylesheet" type="text/css" media="screen" href="<?php print $cathref_plugin_dir ?>/catholic-reference.css" />
@@ -521,6 +523,13 @@ class CathRefExt {
         } else {
             ?><script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/js/option-click.js"></script><?php
         }
+        ?>
+        <style type="text/css">
+            .scripture_popup, .scripture_popup_shadow, .ccc_popup, .ccc_popup_shadow {
+                width: <?php echo( $config[ 'popup_width' ] ); ?>px;
+            }
+        </style>
+        <?php
     }
     
     function admin_header() {
@@ -819,6 +828,16 @@ class CathRefExt {
             if( isset( $_POST[ 'ccc_dir' ] ) ) {
                 $config[ 'ccc_dir' ] = $_POST[ 'ccc_dir' ];
             }
+            if( isset( $_POST[ 'popup_width' ] ) ) {
+                $width = (int) $_POST[ 'popup_width' ];
+                if( $width < 20 ) {
+                    $width = 20;
+                }
+                if( $width > 3000 ) {
+                    $width = 3000;
+                }
+                $config[ 'popup_width' ] = $width;
+            }
             /*
             $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
             if( isset( $_POST[ '' ] ) ) {
@@ -852,8 +871,6 @@ class CathRefExt {
         
         <form method="POST" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
         
-            <h3>General</h3>
-        
             <div>
             Show popups when references are:
             <input type="radio" name="show_popup_on_hover" value="1" <?php
@@ -871,6 +888,11 @@ class CathRefExt {
             <div>
             Catechism of the Catholic Church text directory:
             <input type="text" name="ccc_dir" value="<?php echo $config[ 'ccc_dir' ] ?>" size="40" />
+            </div>
+            
+            <div>
+            Popup width:
+            <input type="text" name="popup_width" value="<?php echo $config[ 'popup_width' ] ?>" size="4" />px
             </div>
             
             <br />
