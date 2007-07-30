@@ -45,7 +45,7 @@ function show_popup( id, event, type ) {
     
     var y = event.pageY + 10;
     var x = event.pageX + 10;
-    if( y + 370 > window_height + window.pageYOffset ) {
+    if( y + 350 > window_height + window.pageYOffset ) {
         y = window_height + window.pageYOffset - 370;
     }
     if( y < 0 ) {

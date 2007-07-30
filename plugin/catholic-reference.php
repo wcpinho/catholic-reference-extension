@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.1
+Version: 0.8.2
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -48,7 +48,7 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 class CathRefExt {
-    public $cathref_version = "0.8.1";
+    public $cathref_version = "0.8.2";
     
     public $book_numbers = array(
         'ge' => 1,
@@ -509,24 +509,26 @@ class CathRefExt {
     /* ****************************************** */
     
     function header() {
+        $cathref_plugin_dir = get_settings( 'siteurl' ) . "/wp-content/plugins/catholic-reference";
         ?>
-        <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
-        <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
-        <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.js"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="<?php print $cathref_plugin_dir ?>/catholic-reference.css" />
+        <script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/js/jquery-1.1.3.1.pack.js"></script>
+        <script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/catholic-reference.js"></script>
         <?php
         $config = $this->get_config();
         if( $config[ 'show_popup_on_hover' ] ) {
-            ?><script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/js/option-hover.js"></script><?php
+            ?><script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/js/option-hover.js"></script><?php
         } else {
-            ?><script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/js/option-click.js"></script><?php
+            ?><script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/js/option-click.js"></script><?php
         }
     }
     
     function admin_header() {
+        $cathref_plugin_dir = get_settings( 'siteurl' ) . "/wp-content/plugins/catholic-reference";
         ?>
-        <link rel="stylesheet" type="text/css" media="screen" href="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.css" />
-        <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-includes/js/jquery/jquery.js"></script>
-        <script type="text/javascript" src="<?php print get_settings( 'siteurl' ); ?>/wp-content/plugins/catholic-reference/catholic-reference.js"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="<?php print $cathref_plugin_dir ?>/catholic-reference.css" />
+        <script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/js/jquery-1.1.3.1.pack.js"></script>
+        <script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/catholic-reference.js"></script>
         <?php
     }
     
@@ -652,11 +654,11 @@ class CathRefExt {
                     $popup1 .= $popup;
                     $this->popups[] = $popup1;
                     
-                    if( $config[ 'draw_shadows' ] ) {
+                    // if( $config[ 'draw_shadows' ] ) {
                         $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
                         // $popup2 .= $popup;
                         $this->popups[] = $popup2;
-                    }
+                    // }
                 } else {
                     $retval = $original_span;
                 }
@@ -777,6 +779,7 @@ class CathRefExt {
             $content .= $popup;
         }
         
+        //return $content . "<div class='cathref_test'></div>";
         return $content;
     }
     
@@ -816,8 +819,8 @@ class CathRefExt {
             if( isset( $_POST[ 'ccc_dir' ] ) ) {
                 $config[ 'ccc_dir' ] = $_POST[ 'ccc_dir' ];
             }
-            $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
             /*
+            $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
             if( isset( $_POST[ '' ] ) ) {
                 
             }
