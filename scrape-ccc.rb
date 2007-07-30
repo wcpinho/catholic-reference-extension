@@ -12,15 +12,20 @@ def scrape_one_paragraph( pnum )
         File.open( cache_file, 'w' ) do |f|
             f.puts raw_text
         end
+        sleep 0.5  # throttle speed
     end
         
     text = raw_text[ /   #{pnum} (.+)   _____/m, 1 ]
-    paras = text.split( /\n\n/ )
+    if text.nil?
+        puts "Failed to parse raw text:\n#{raw_text}"
+        exit 1
+    else
+        paras = text.split( /\n\n/ )
+    end
     "#{pnum}\t" + paras.collect { |p| p.gsub( /\s+/m, ' ' ) }.join( "\t" )
 end
 
 def one_set( start_num )
-    threads = []
     paras = Hash.new
     
     if start_num < 1
@@ -30,21 +35,9 @@ def one_set( start_num )
     if end_num > 2865
         end_num = 2865
     end
-    ( start_num..end_num).each do |i|
-        while threads.size > 2
-            sleep 0.2
-            threads.reject! do |t|
-                not t.alive?
-            end
-        end
-        threads << Thread.new( i ) do |num|
-            paras[ num ] = scrape_one_paragraph( num )
-            $stdout.print "."; $stdout.flush
-        end
-    end
-    
-    threads.each do |t|
-        t.join
+    ( start_num..end_num).each do |num|
+        paras[ num ] = scrape_one_paragraph( num )
+        $stdout.print "."; $stdout.flush
     end
     
     File.open( $out_dir + "/ccc-#{start_num}-#{end_num}.txt", 'w' ) do |f|

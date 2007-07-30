@@ -503,7 +503,7 @@ class CathRefExt {
     
     function ccc_text_exists() {
         $config = $this->get_config();
-        return( file_exists( $config[ 'ccc_dir' ] . "/ccc-0-99.txt" ) );
+        return( file_exists( $config[ 'ccc_dir' ] . "/ccc-1-100.txt" ) );
     }
         
     /* ****************************************** */
@@ -712,9 +712,16 @@ class CathRefExt {
         
         $paragraphs_added = 0;
         foreach( $paras as $para ) {
-            $x = ( (int)( $para / 100 ) ) * 100;
-            $y = $x + 99;
-            $lines = file( $config[ 'ccc_dir' ] . "/ccc-$x-$y.txt" , FILE_IGNORE_NEW_LINES );
+            if( $para < 101 ) {
+                $filename = "ccc-1-100.txt";
+            } else if( $para > 2799 ) {
+                $filename = "ccc-2800-2865.txt";
+            } else {
+                $x = ( (int)( $para / 100 ) ) * 100;
+                $y = $x + 99;
+                $filename = "ccc-$x-$y.txt";
+            }
+            $lines = file( $config[ 'ccc_dir' ] . "/$filename" , FILE_IGNORE_NEW_LINES );
             foreach ( $lines as $line ) {
                 $parts = explode( "\t", $line );
                 $file_para = array_shift( $parts );
