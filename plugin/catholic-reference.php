@@ -899,7 +899,7 @@ class CathRefExt {
                 if( $this->paragraphs_added > 0 ) {
                     $this->popups[] = $popup1;
                     $this->popups[] = $popup2;
-                    $retval = "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+                    $retval = "$lead_char<span class=\"ccc_reference\" refid=\"$id\">" . substr( $original_span, 1 ) . "</span>";
                 }
             }
         }
@@ -922,7 +922,7 @@ class CathRefExt {
         }
         if( $this->ccc_text_exists() ) {
             $content = preg_replace_callback(
-                "/(.)CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
+                "/(.)CCC (?:p(?:p|aragraphs?)?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
                 array( &$this, 'substitute_ccc' ),
                 $content
             );
