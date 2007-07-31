@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.3
+Version: 0.8.4
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -48,7 +48,7 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 class CathRefExt {
-    public $cathref_version = "0.8.3";
+    public $cathref_version = "0.8.4";
     
     public $book_numbers = array(
         'ge' => 1,
@@ -835,67 +835,72 @@ class CathRefExt {
         $original_span = array_shift( $matches );
         $retval = $original_span;
         $lead_char = array_shift( $matches );
-        $ranges = array();
-        foreach ( $matches as $range ) {
-            if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
-                $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
-            } else {
-                preg_match( "/(\\d+)/", $range, $range_matches );
-                $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
-            }
-        }
         
-        $paras = array();
-        $range_strs = array();
-        foreach( $ranges as $range ) {
-            for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
-                if( $i >= 0 && $i <= 2865 ) {
-                    $paras[] = $i;
+        if( $lead_char == '!' ) {
+            $retval = substr( $retval, 1 );
+        } else {
+            $ranges = array();
+            foreach ( $matches as $range ) {
+                if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
+                    $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
+                } else {
+                    preg_match( "/(\\d+)/", $range, $range_matches );
+                    $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
                 }
             }
-            if( $range[ 'start' ] == $range[ 'end' ] ) {
-                $range_strs[] = $range[ 'start' ];
+            
+            $paras = array();
+            $range_strs = array();
+            foreach( $ranges as $range ) {
+                for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
+                    if( $i >= 0 && $i <= 2865 ) {
+                        $paras[] = $i;
+                    }
+                }
+                if( $range[ 'start' ] == $range[ 'end' ] ) {
+                    $range_strs[] = $range[ 'start' ];
+                } else {
+                    $range_strs[] = $range[ 'start' ] . "-" . $range[ 'end' ];
+                }
+            }
+            $ccc_references = "CCC " . join( ',', $range_strs );
+            
+            if( $lead_char == '`' ) {
+                $retval = $config[ 'quote_prefix' ];
+                if( $config[ 'show_quote_header' ] ) {
+                    $retval .= "<div class='cathref_quote_header'>$ccc_references</div>";
+                }
+                $retval .= $this->ccc_paragraphs( $paras );
+                $retval .= $config[ 'quote_suffix' ];
             } else {
-                $range_strs[] = $range[ 'start' ] . "-" . $range[ 'end' ];
-            }
-        }
-        $ccc_references = "CCC " . join( ',', $range_strs );
-        
-        if( $lead_char == '`' ) {
-            $retval = $config[ 'quote_prefix' ];
-            if( $config[ 'show_quote_header' ] ) {
-                $retval .= "<div class='cathref_quote_header'>$ccc_references</div>";
-            }
-            $retval .= $this->ccc_paragraphs( $paras );
-            $retval .= $config[ 'quote_suffix' ];
-        } else {
-            $id = ( microtime() + rand( 0, 1000 ) );
-            
-            $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
-            $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\"></div>";
-            $popup = "";
+                $id = ( microtime() + rand( 0, 1000 ) );
                 
-            // Header
-            $popup .= "<div class='ccc_header'>";
-            $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-            $popup .= $ccc_references;
-            $popup .= "</div>";
-            
-            // Body
-            
-            $popup .= "<div class='ccc_text'>";
-            $popup .= $this->ccc_paragraphs( $paras );
-            $popup .= "</div>";
-            
-            $popup .= "</div>";
-            
-            $popup1 .= $popup;
-            // $popup2 .= $popup;
-            
-            if( $this->paragraphs_added > 0 ) {
-                $this->popups[] = $popup1;
-                $this->popups[] = $popup2;
-                $retval = "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+                $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
+                $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\"></div>";
+                $popup = "";
+                    
+                // Header
+                $popup .= "<div class='ccc_header'>";
+                $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
+                $popup .= $ccc_references;
+                $popup .= "</div>";
+                
+                // Body
+                
+                $popup .= "<div class='ccc_text'>";
+                $popup .= $this->ccc_paragraphs( $paras );
+                $popup .= "</div>";
+                
+                $popup .= "</div>";
+                
+                $popup1 .= $popup;
+                // $popup2 .= $popup;
+                
+                if( $this->paragraphs_added > 0 ) {
+                    $this->popups[] = $popup1;
+                    $this->popups[] = $popup2;
+                    $retval = "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+                }
             }
         }
         
