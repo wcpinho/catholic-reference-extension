@@ -23,6 +23,17 @@ If you did not download the full CRE package which also contains the texts
 and download the texts separately from there.  The CRE will not function
 without the texts.
 
+#### Usage ###
+
+The CRE will automatically convert most typical forms of Scripture references.
+You can refer to the book by its full name, or by an abbreviation.
+
+To refer to a Catechism paragraph, use "CCC" before the paragraph number(s).
+For example: CCC 1210-1212.
+
+If for some reason you do not want the CRE to activate some text, put an
+exclamation point in front.  For example: !John 3:16.  
+
 
 #### Contact ####
 

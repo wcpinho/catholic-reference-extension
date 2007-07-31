@@ -636,6 +636,28 @@ class CathRefExt {
         <?
     }
         
+    function scripture_passage( $book_number, $chapter, $start_verse, $end_verse ) {
+        $config = $this->get_config();
+        $this->verses_added = 0;
+        $scripture_text = "";
+        $lines = file( $config[ 'drb_dir' ] . "/$book_number.book", FILE_IGNORE_NEW_LINES );
+        foreach ( $lines as $line ) {
+            $parts = explode( "\t", $line, 3 );
+            $line_chapter = $parts[ 0 ];
+            $line_verse = $parts[ 1 ];
+            $line_text = $parts[ 2 ];
+            if( $line_chapter == $chapter ) {
+                if( ( $start_verse <= $line_verse ) && ( $line_verse <= $end_verse ) ) {
+                    $scripture_text .= "<div class='verse'>";
+                    $scripture_text .= "<span class='verse_number'>$line_verse</span>$line_text";
+                    $scripture_text .= "</div>";
+                    $this->verses_added++;
+                }
+            }
+        }
+        return $scripture_text;
+    }
+    
     function substitute_scripture( $matches ) {
         $config = $this->get_config();
         $retval = $original_span = $matches[ 0 ];
@@ -648,7 +670,7 @@ class CathRefExt {
             $book_number = $this->book_numbers[ $book ] + 0;
             
             if( $book_number ) {
-            
+                
                 $chapter = $matches[ 3 ];
                 if( $matches[ 4 ] ) {
                     $start_verse = $matches[ 4 ];
@@ -659,103 +681,95 @@ class CathRefExt {
                         $end_verse = $start_verse;
                     }
                 }
-                
-                $id = ( microtime() + rand( 0, 1000 ) );
-                
-                $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter";
-                
-                $verse_string = '';
-                if( $start_verse ) {
-                    $verse_string .= ":" . $start_verse;
-                    if( $verse_separator && $end_verse ) {
-                        $verse_string .= $verse_separator . $end_verse;
-                    }
-                }
-                $retval .= $verse_string;
-                
-                $retval .= "</span>";
-                
-                $popup = "";
                     
-                // Header
-                $popup .= "<div class='scripture_header'>";
-                $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-                $passage = $this->book_names[ $book_number ] . " $chapter$verse_string";
-                $popup .= "<span class='passage'>" . $passage . "</span><br />";
-                $popup .= "<span class='alternates'>View in: ";
-                
-                // NAB
-                $book_no_spaces = str_replace( ' ', '', $this->book_names[ $book_number ] );
-                $nab_book = strtolower( $book_no_spaces );
-                $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
-                
-                // NIV
-                $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
-                // KJV
-                $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
-                
-                // Latin Vulgate
-                if( $book_number < 47 ) {
-                    $vulg_testament = 0;
-                    $vulg_book = $book_number;
+                if( $lead_char == '`' ) {
+                    $retval = "<div>";
+                    $retval .= $this->scripture_passage( $book_number, $chapter, $start_verse, $end_verse );
+                    $retval .= "</div>";
                 } else {
-                    $vulg_testament = 1;
-                    $vulg_book = $book_number - 46;
-                }
-                $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
-                
-                if( $book_number < 47 ) {
-                    // Septuagint (LXX)
-                    $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
-                    // Hebrew - Masoretic Text
-                    $hbook = $this->hebrew_books[ $book_number ];
-                    if( $hbook ) {
-                        $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
-                        $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
-                    }
-                } else {
-                    // Nestle-Aland Greek NT
-                    $nt_book = $book_number - 46;
-                    $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
-                }
-                
-                $popup .= "</span>";
-                $popup .= "</div>";
-                
-                // Body
-                $popup .= "<div class='scripture_text'>";
-                $verses_added = 0;
-                $lines = file( $config[ 'drb_dir' ] . "/$book_number.book", FILE_IGNORE_NEW_LINES );
-                foreach ( $lines as $line ) {
-                    $parts = explode( "\t", $line, 3 );
-                    $line_chapter = $parts[ 0 ];
-                    $line_verse = $parts[ 1 ];
-                    $line_text = $parts[ 2 ];
-                    if( $line_chapter == $chapter ) {
-                        if( ( $start_verse <= $line_verse ) && ( $line_verse <= $end_verse ) ) {
-                            $popup .= "<div class='verse'>";
-                            $popup .= "<span class='verse_number'>$line_verse</span>$line_text";
-                            $popup .= "</div>";
-                            $verses_added++;
+            
+                    $id = ( microtime() + rand( 0, 1000 ) );
+                    
+                    $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter";
+                    
+                    $verse_string = '';
+                    if( $start_verse ) {
+                        $verse_string .= ":" . $start_verse;
+                        if( $verse_separator && $end_verse ) {
+                            $verse_string .= $verse_separator . $end_verse;
                         }
                     }
-                }
-                
-                $popup .= "</div>";
-                $popup .= "</div>";
-                
-                if( $verses_added > 0 ) {
-                    $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
-                    $popup1 .= $popup;
-                    $this->popups[] = $popup1;
+                    $retval .= $verse_string;
                     
-                    // if( $config[ 'draw_shadows' ] ) {
-                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
-                        // $popup2 .= $popup;
-                        $this->popups[] = $popup2;
-                    // }
-                } else {
-                    $retval = $original_span;
+                    $retval .= "</span>";
+                    
+                    $popup = "";
+                        
+                    // Header
+                    $popup .= "<div class='scripture_header'>";
+                    $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
+                    $passage = $this->book_names[ $book_number ] . " $chapter$verse_string";
+                    $popup .= "<span class='passage'>" . $passage . "</span><br />";
+                    $popup .= "<span class='alternates'>View in: ";
+                    
+                    // NAB
+                    $book_no_spaces = str_replace( ' ', '', $this->book_names[ $book_number ] );
+                    $nab_book = strtolower( $book_no_spaces );
+                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
+                    
+                    // NIV
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                    // KJV
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
+                    
+                    // Latin Vulgate
+                    if( $book_number < 47 ) {
+                        $vulg_testament = 0;
+                        $vulg_book = $book_number;
+                    } else {
+                        $vulg_testament = 1;
+                        $vulg_book = $book_number - 46;
+                    }
+                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                    
+                    if( $book_number < 47 ) {
+                        // Septuagint (LXX)
+                        $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                        // Hebrew - Masoretic Text
+                        $hbook = $this->hebrew_books[ $book_number ];
+                        if( $hbook ) {
+                            $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
+                            $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                        }
+                    } else {
+                        // Nestle-Aland Greek NT
+                        $nt_book = $book_number - 46;
+                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
+                    }
+                    
+                    $popup .= "</span>";
+                    $popup .= "</div>";
+                    
+                    // Body
+                    $popup .= "<div class='scripture_text'>";
+                    $popup .= $this->scripture_passage( $book_number, $chapter, $start_verse, $end_verse );
+                    $popup .= "</div>";
+                    
+                    $popup .= "</div>";
+                    
+                    if( $this->verses_added > 0 ) {
+                        $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
+                        $popup1 .= $popup;
+                        $this->popups[] = $popup1;
+                        
+                        // if( $config[ 'draw_shadows' ] ) {
+                            $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
+                            // $popup2 .= $popup;
+                            $this->popups[] = $popup2;
+                        // }
+                    } else {
+                        $retval = $original_span;
+                    }
                 }
             }
         }
