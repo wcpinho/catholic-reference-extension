@@ -46,17 +46,19 @@ Dir[ "#{source_dir}/__*" ].each do |filename|
             para = $1.to_i
             text = inner.clean.sub( /#{para}/, '' )
             $paragraphs[ para ] = text
-        elsif p[ :style ] == "margin-left:35.4pt"
+        elsif(
+            ( not inner_text.strip.empty? ) and
+            ( inner !~ /<hr/m ) and
+            ( inner_text !~ /^(article|section|chapter|part (one|two|three|four)|[lxvi]+\. )/im ) and
+            ( inner_text !~ /^IN BRIEF$/m )
+        )
             if para
+                #puts "<<#{inner}>>\n<t#{inner_text}t>"
                 $paragraphs[ para ] << "\t" + inner.clean
-            else
-                puts "styled without leader:"
-                puts inner
             end
         else
-            #puts "** unknown"
-            #puts p.to_html
-            #puts "** end unknown"
+            write_para( para ) if para
+            para = nil
         end
     end
     counter += 1
