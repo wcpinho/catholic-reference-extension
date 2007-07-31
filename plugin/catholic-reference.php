@@ -819,6 +819,7 @@ class CathRefExt {
     function substitute_ccc( $matches ) {
         $config = $this->get_config();
         $original_span = array_shift( $matches );
+        $retval = $original_span;
         $lead_char = array_shift( $matches );
         $ranges = array();
         foreach ( $matches as $range ) {
@@ -844,37 +845,47 @@ class CathRefExt {
                 $range_strs[] = $range[ 'start' ] . "-" . $range[ 'end' ];
             }
         }
+        $ccc_references = "CCC " . join( ',', $range_strs );
         
-        $id = ( microtime() + rand( 0, 1000 ) );
-        
-        $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
-        $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\"></div>";
-        $popup = "";
-            
-        // Header
-        $popup .= "<div class='ccc_header'>";
-        $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-        $popup .= "CCC " . join( ',', $range_strs );
-        $popup .= "</div>";
-        
-        // Body
-        
-        $popup .= "<div class='ccc_text'>";
-        $popup .= $this->ccc_paragraphs( $paras );
-        $popup .= "</div>";
-        
-        $popup .= "</div>";
-        
-        $popup1 .= $popup;
-        // $popup2 .= $popup;
-        
-        if( $this->paragraphs_added > 0 ) {
-            $this->popups[] = $popup1;
-            $this->popups[] = $popup2;
-            return "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+        if( $lead_char == '`' ) {
+            $retval = $config[ 'quote_prefix' ];
+            if( $config[ 'show_quote_header' ] ) {
+                $retval .= "<div class='cathref_quote_header'>$ccc_references</div>";
+            }
+            $retval .= $this->ccc_paragraphs( $paras );
+            $retval .= $config[ 'quote_suffix' ];
         } else {
-            return $original_span;
+            $id = ( microtime() + rand( 0, 1000 ) );
+            
+            $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
+            $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\"></div>";
+            $popup = "";
+                
+            // Header
+            $popup .= "<div class='ccc_header'>";
+            $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
+            $popup .= $ccc_references;
+            $popup .= "</div>";
+            
+            // Body
+            
+            $popup .= "<div class='ccc_text'>";
+            $popup .= $this->ccc_paragraphs( $paras );
+            $popup .= "</div>";
+            
+            $popup .= "</div>";
+            
+            $popup1 .= $popup;
+            // $popup2 .= $popup;
+            
+            if( $this->paragraphs_added > 0 ) {
+                $this->popups[] = $popup1;
+                $this->popups[] = $popup2;
+                $retval = "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
+            }
         }
+        
+        return $retval;
     }
     
     function filter( $content ) {
@@ -933,6 +944,7 @@ class CathRefExt {
             if( isset( $_POST[ 'show_popup_on_hover' ] ) ) {
                 $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
             }
+            $config[ 'show_quote_header' ] = (bool) $_POST[ 'show_quote_header' ];
             if( isset( $_POST[ 'drb_dir' ] ) ) {
                 $config[ 'drb_dir' ] = $_POST[ 'drb_dir' ];
             }
@@ -1001,6 +1013,13 @@ class CathRefExt {
             <div>
             Popup width:
             <input type="text" name="popup_width" value="<?php echo $config[ 'popup_width' ] ?>" size="4" />pixels
+            </div>
+            
+            <div>
+            Show header in quotations:
+            <input type="checkbox" name="show_quote_header" <?php
+                ( $config[ 'show_quote_header' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
+            ?> />
             </div>
             
             <h3>Advanced</h3>
