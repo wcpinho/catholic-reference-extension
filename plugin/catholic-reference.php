@@ -639,7 +639,7 @@ class CathRefExt {
         <?
     }
         
-    function scripture_passage( $book_number, $chapter, $start_verse, $end_verse ) {
+    function scripture_passage( $book_number, $chapter, $verses ) {
         $config = $this->get_config();
         $this->verses_added = 0;
         $scripture_text = "";
@@ -647,10 +647,10 @@ class CathRefExt {
         foreach ( $lines as $line ) {
             $parts = explode( "\t", $line, 3 );
             $line_chapter = $parts[ 0 ];
-            $line_verse = $parts[ 1 ];
+            $line_verse = (int) $parts[ 1 ];
             $line_text = $parts[ 2 ];
             if( $line_chapter == $chapter ) {
-                if( ( $start_verse <= $line_verse ) && ( $line_verse <= $end_verse ) ) {
+                if( in_array( $line_verse, $verses ) ) {
                     $scripture_text .= "<div class='verse'>";
                     $scripture_text .= "<span class='verse_number'>$line_verse</span>$line_text";
                     $scripture_text .= "</div>";
@@ -663,48 +663,62 @@ class CathRefExt {
     
     function substitute_scripture( $matches ) {
         $config = $this->get_config();
-        $retval = $original_span = $matches[ 0 ];
-        $lead_char = $matches[ 1 ];
+        
+        $original_span = array_shift( $matches );
+        $retval = $original_span;
+        $lead_char = array_shift( $matches );
+        $original_book = array_shift( $matches );
+        $chapter = array_shift( $matches );
+        
+        $ranges = array();
+        foreach ( $matches as $range ) {
+            if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
+                $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
+            } else {
+                preg_match( "/(\\d+)/", $range, $range_matches );
+                $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
+            }
+        }
+        
+        $verses = array();
+        $range_strs = array();
+        foreach( $ranges as $range ) {
+            for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
+                if( $i >= 0 && $i <= 176 ) {
+                    $verses[] = $i;
+                }
+            }
+            if( $range[ 'start' ] == $range[ 'end' ] ) {
+                $range_strs[] = $range[ 'start' ];
+            } else {
+                $range_strs[] = $range[ 'start' ] . "-" . $range[ 'end' ];
+            }
+        }
+        
         if( $lead_char == "!" ) {
             $retval = substr( $retval, 1 );
         } else {
-            $original_book = $matches[ 2 ];
             $book = strtolower( $original_book );
             $book_number = $this->book_numbers[ $book ] + 0;
             
             if( $book_number ) {
-                
-                $chapter = $matches[ 3 ];
-                if( $matches[ 4 ] ) {
-                    $start_verse = $matches[ 4 ];
-                    if( $matches[ 6 ] ) {
-                        $verse_separator = $matches[ 5 ];
-                        $end_verse = $matches[ 6 ];
-                    } else {
-                        $end_verse = $start_verse;
-                    }
-                }
-                $verse_string = '';
-                if( $start_verse ) {
-                    $verse_string .= ":" . $start_verse;
-                    if( $verse_separator && $end_verse ) {
-                        $verse_string .= $verse_separator . $end_verse;
-                    }
-                }
-                $passage = $this->book_names[ $book_number ] . " $chapter$verse_string";
+                $passage = $this->book_names[ $book_number ] . " $chapter:";
+                $verse_string = join( ',', $range_strs );
+                $passage .= $verse_string;
+                $start_verse = $ranges[ 0 ][ 'start' ];
                     
                 if( $lead_char == '`' ) {
                     $retval = $config[ 'quote_prefix' ];
                     if( $config[ 'show_quote_header' ] ) {
                         $retval .= "<div class='cathref_quote_header'>$passage</div>";
                     }
-                    $retval .= $this->scripture_passage( $book_number, $chapter, $start_verse, $end_verse );
+                    $retval .= $this->scripture_passage( $book_number, $chapter, $verses );
                     $retval .= $config[ 'quote_suffix' ];
                 } else {
             
                     $id = ( microtime() + rand( 0, 1000 ) );
                     
-                    $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter$verse_string</span>";
+                    $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter:$verse_string</span>";
                     
                     $popup = "";
                         
@@ -754,7 +768,7 @@ class CathRefExt {
                     
                     // Body
                     $popup .= "<div class='scripture_text'>";
-                    $popup .= $this->scripture_passage( $book_number, $chapter, $start_verse, $end_verse );
+                    $popup .= $this->scripture_passage( $book_number, $chapter, $verses );
                     $popup .= "</div>";
                     
                     $popup .= "</div>";
@@ -893,7 +907,10 @@ class CathRefExt {
     
         if( $this->drb_text_exists() ) {
             $content = preg_replace_callback(
-                "/(.)($book_regexp)\\.? +(\\d+)" . "(?: *: *(\\d+)(?: *(-|\\.{2,}) *(\\d+))?)?/i",
+                // old: "/(.)($book_regexp)\\.? +(\\d+)" .
+                // old: "(?: *: *(\\d+)(?: *- *(\\d+))?)?/i",
+                "/(.)($book_regexp)\\.? +(\\d+) *: *" .  // book and chapter
+                "(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/i",  // verses
                 array( &$this, 'substitute_scripture' ),
                 $content
             );
