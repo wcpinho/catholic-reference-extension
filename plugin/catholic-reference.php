@@ -779,9 +779,47 @@ class CathRefExt {
         return $retval;
     }
     
+    function ccc_paragraphs( $paras ) {
+        $config = $this->get_config();
+        $this->paragraphs_added = 0;
+        $text = "";
+        
+        foreach( $paras as $para ) {
+            if( $para < 101 ) {
+                $filename = "ccc-1-100.txt";
+            } else if( $para > 2799 ) {
+                $filename = "ccc-2800-2865.txt";
+            } else {
+                $x = ( (int)( $para / 100 ) ) * 100;
+                $y = $x + 99;
+                $filename = "ccc-$x-$y.txt";
+            }
+            $lines = file( $config[ 'ccc_dir' ] . "/$filename" , FILE_IGNORE_NEW_LINES );
+            foreach ( $lines as $line ) {
+                $parts = explode( "\t", $line );
+                $file_para = array_shift( $parts );
+                if( $para == $file_para ) {
+                    $text .= "<div class='cccp'>";
+                    $text .= "<span class='paragraph_number'>&para;$para</span> ";
+                    $text .= array_shift( $parts );
+                    if( count( $parts ) > 0 ) {
+                        $text .= "<p>";
+                        $text .= join( '</p><p>', $parts );
+                        $text .= "</p>";
+                    }
+                    $text .= "</div>";
+                    $this->paragraphs_added++;
+                }
+            }
+        }
+        
+        return $text;
+    }
+    
     function substitute_ccc( $matches ) {
         $config = $this->get_config();
         $original_span = array_shift( $matches );
+        $lead_char = array_shift( $matches );
         $ranges = array();
         foreach ( $matches as $range ) {
             if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
@@ -822,44 +860,15 @@ class CathRefExt {
         // Body
         
         $popup .= "<div class='ccc_text'>";
-        
-        $paragraphs_added = 0;
-        foreach( $paras as $para ) {
-            if( $para < 101 ) {
-                $filename = "ccc-1-100.txt";
-            } else if( $para > 2799 ) {
-                $filename = "ccc-2800-2865.txt";
-            } else {
-                $x = ( (int)( $para / 100 ) ) * 100;
-                $y = $x + 99;
-                $filename = "ccc-$x-$y.txt";
-            }
-            $lines = file( $config[ 'ccc_dir' ] . "/$filename" , FILE_IGNORE_NEW_LINES );
-            foreach ( $lines as $line ) {
-                $parts = explode( "\t", $line );
-                $file_para = array_shift( $parts );
-                if( $para == $file_para ) {
-                    $popup .= "<div class='cccp'>";
-                    $popup .= "<span class='paragraph_number'>&para;$para</span> ";
-                    $popup .= array_shift( $parts );
-                    if( count( $parts ) > 0 ) {
-                        $popup .= "<p>";
-                        $popup .= join( '</p><p>', $parts );
-                        $popup .= "</p>";
-                    }
-                    $popup .= "</div>";
-                    $paragraphs_added++;
-                }
-            }
-        }
-        
+        $popup .= $this->ccc_paragraphs( $paras );
         $popup .= "</div>";
+        
         $popup .= "</div>";
         
         $popup1 .= $popup;
         // $popup2 .= $popup;
         
-        if( $paragraphs_added > 0 ) {
+        if( $this->paragraphs_added > 0 ) {
             $this->popups[] = $popup1;
             $this->popups[] = $popup2;
             return "<span class=\"ccc_reference\" refid=\"$id\">$original_span</span>";
@@ -880,7 +889,7 @@ class CathRefExt {
         }
         if( $this->ccc_text_exists() ) {
             $content = preg_replace_callback(
-                "/CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
+                "/(.)CCC p?(?:p|aragraphs?)? *(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/",
                 array( &$this, 'substitute_ccc' ),
                 $content
             );
