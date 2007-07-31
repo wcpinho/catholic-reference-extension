@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.2
+Version: 0.8.3
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -48,7 +48,7 @@ http://www.gnu.org/licenses/gpl.txt
 */
 
 class CathRefExt {
-    public $cathref_version = "0.8.2";
+    public $cathref_version = "0.8.3";
     
     public $book_numbers = array(
         'ge' => 1,
@@ -563,6 +563,9 @@ class CathRefExt {
             'drb_dir' => dirname( __FILE__ ) . '/texts/drb',
             'ccc_dir' => dirname( __FILE__ ) . '/texts/ccc',
             'popup_width' => 300,
+            'quote_prefix' => "<blockquote>",
+            'show_quote_header' => true,
+            'quote_suffix' => "</blockquote>",
         );
         
         // Stored options
@@ -681,34 +684,33 @@ class CathRefExt {
                         $end_verse = $start_verse;
                     }
                 }
+                $verse_string = '';
+                if( $start_verse ) {
+                    $verse_string .= ":" . $start_verse;
+                    if( $verse_separator && $end_verse ) {
+                        $verse_string .= $verse_separator . $end_verse;
+                    }
+                }
+                $passage = $this->book_names[ $book_number ] . " $chapter$verse_string";
                     
                 if( $lead_char == '`' ) {
-                    $retval = "<div>";
+                    $retval = $config[ 'quote_prefix' ];
+                    if( $config[ 'show_quote_header' ] ) {
+                        $retval .= "<div class='cathref_quote_header'>$passage</div>";
+                    }
                     $retval .= $this->scripture_passage( $book_number, $chapter, $start_verse, $end_verse );
-                    $retval .= "</div>";
+                    $retval .= $config[ 'quote_suffix' ];
                 } else {
             
                     $id = ( microtime() + rand( 0, 1000 ) );
                     
-                    $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter";
-                    
-                    $verse_string = '';
-                    if( $start_verse ) {
-                        $verse_string .= ":" . $start_verse;
-                        if( $verse_separator && $end_verse ) {
-                            $verse_string .= $verse_separator . $end_verse;
-                        }
-                    }
-                    $retval .= $verse_string;
-                    
-                    $retval .= "</span>";
+                    $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter$verse_string</span>";
                     
                     $popup = "";
                         
                     // Header
                     $popup .= "<div class='scripture_header'>";
                     $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-                    $passage = $this->book_names[ $book_number ] . " $chapter$verse_string";
                     $popup .= "<span class='passage'>" . $passage . "</span><br />";
                     $popup .= "<span class='alternates'>View in: ";
                     
@@ -933,10 +935,16 @@ class CathRefExt {
                 if( $width < 20 ) {
                     $width = 20;
                 }
-                if( $width > 3000 ) {
-                    $width = 3000;
+                if( $width > 2000 ) {
+                    $width = 2000;
                 }
                 $config[ 'popup_width' ] = $width;
+            }
+            if( isset( $_POST[ 'quote_prefix' ] ) ) {
+                $config[ 'quote_prefix' ] = $_POST[ 'quote_prefix' ];
+            }
+            if( isset( $_POST[ 'quote_suffix' ] ) ) {
+                $config[ 'quote_suffix' ] = $_POST[ 'quote_suffix' ];
             }
             /*
             $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
@@ -982,6 +990,13 @@ class CathRefExt {
             </div>
             
             <div>
+            Popup width:
+            <input type="text" name="popup_width" value="<?php echo $config[ 'popup_width' ] ?>" size="4" />pixels
+            </div>
+            
+            <h3>Advanced</h3>
+            
+            <div>
             Douay-Rheims Bible text directory:
             <input type="text" name="drb_dir" value="<?php echo $config[ 'drb_dir' ] ?>" size="40" />
             </div>
@@ -990,10 +1005,19 @@ class CathRefExt {
             <input type="text" name="ccc_dir" value="<?php echo $config[ 'ccc_dir' ] ?>" size="40" />
             </div>
             
-            <div>
-            Popup width:
-            <input type="text" name="popup_width" value="<?php echo $config[ 'popup_width' ] ?>" size="4" />pixels
-            </div>
+            <p>
+            These two pieces of HTML are used to wrap Scripture and CCC quotations.
+            </p>
+            <table>
+            <tr>
+            <td>Quote prefix:</td>
+            <td><textarea name="quote_prefix" cols="50" rows="3"><?php echo $config[ 'quote_prefix' ] ?></textarea></td>
+            </tr>
+            <tr>
+            <td>Quote suffix:</td>
+            <td><textarea name="quote_suffix" cols="50" rows="3"><?php echo $config[ 'quote_suffix' ] ?></textarea></td>
+            </tr>
+            </table>
             
             <br />
             <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />

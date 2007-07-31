@@ -88,11 +88,21 @@
     font-weight: bold;
 }
 
+.cathref_quote_header {
+    font-weight: bold;
+    border-bottom: 1px solid black;
+    width: 100%;
+}
+
 /* ----------------------------------- */
 
 .cathref_config {
     padding: 1em;
     margin: 1em;
+}
+
+.cathref_config td {
+    vertical-align: top;
 }
 
 .cathref_config_notice {
