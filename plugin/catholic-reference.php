@@ -573,6 +573,8 @@ function cathref_initialize() {
 }
     
 function cathref_get_config() {
+    global $cathref_wp_option_name;
+    
     // Defaults
     $config = array(
         'show_popup_on_hover' => true,
@@ -648,6 +650,7 @@ function cathref_admin_header() {
 }
 
 function cathref_footer() {
+    global $cathref_site;
     ?>
     <div class="cathref_footer">
     Scripture and Catechism references powered by
@@ -969,7 +972,7 @@ function cathref_filter( $content ) {
 // Returns NULL if all texts are found.
 // Returns a notice message in a string for any missing texts.
 function cathref_check_texts( $config ) {
-    global $cathref_notices;
+    global $cathref_notices, $cathref_site;
     
     $message = "";
     
@@ -987,7 +990,7 @@ function cathref_check_texts( $config ) {
 }
     
 function cathref_options_page() {
-    global $cathref_notices;
+    global $cathref_notices, $cathref_version, $cathref_wp_option_name;
     
     $config = cathref_get_config();
     $cathref_notices = "";
