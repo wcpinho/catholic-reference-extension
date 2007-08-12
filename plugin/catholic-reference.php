@@ -52,6 +52,7 @@ function cathref_initialize() {
         $cathref_version,
         $cathref_book_numbers,
         $cathref_book_names,
+        $cathref_njb_books,
         $cathref_hebrew_books,
         $cathref_wp_option_name,
         $cathref_site,
@@ -558,6 +559,82 @@ function cathref_initialize() {
         15 => '35a',
         16 => '35b',
     );
+    
+    $cathref_njb_books = array(
+        1 => '1',
+        2 => '2',
+        3 => '3',
+        4 => '4',
+        5 => '5',
+        6 => '6',
+        7 => '7',
+        8 => '8',
+        9 => '9',
+        10 => '10',
+        11 => '11',
+        12 => '12',
+        13 => '13',
+        14 => '14',
+        15 => '15',
+        16 => '16',
+        17 => NULL,
+        18 => NULL,
+        19 => '17',
+        20 => '18',
+        21 => '19',
+        22 => '20',
+        23 => '21',
+        24 => '22',
+        25 => NULL,
+        26 => NULL,
+        27 => '23',
+        28 => '24',
+        29 => '25',
+        30 => NULL,
+        31 => '26',
+        32 => '27',
+        33 => '28',
+        34 => '29',
+        35 => '30',
+        36 => '31',
+        37 => '32',
+        38 => '33',
+        39 => '34',
+        40 => '35',
+        41 => '36',
+        42 => '37',
+        43 => '38',
+        44 => '39',
+        45 => NULL,
+        46 => NULL,
+        47 => '40',
+        48 => '41',
+        49 => '42',
+        50 => '43',
+        51 => '44',
+        52 => '45',
+        53 => '46',
+        54 => '47',
+        55 => '48',
+        56 => '49',
+        57 => '50',
+        58 => '51',
+        59 => NULL,
+        60 => NULL,
+        61 => '52',
+        62 => '53',
+        63 => '54',
+        64 => '55',
+        65 => '56',
+        66 => '57',
+        67 => '58',
+        68 => '59',
+        69 => '60',
+        70 => '61',
+        71 => '62',
+        72 => '63',
+        73 => '64',
+    );
         
     $cathref_wp_option_name = "catholic-reference-extension-options";
     $cathref_site = "http://blog.purepistos.net/index.php/cre";
@@ -592,6 +669,7 @@ function cathref_get_config() {
         'show_link_Greek' => true,
         'show_link_Hebrew' => true,
         'show_link_LXX' => true,
+        'show_link_NJB' => true,
     );
     
     
@@ -692,7 +770,7 @@ function cathref_scripture_passage( $book_number, $chapter, $verses ) {
 }
 
 function cathref_substitute_scripture( $matches ) {
-    global $cathref_book_numbers, $cathref_book_names, $cathref_hebrew_books, $cathref_verses_added, $cathref_popups;
+    global $cathref_book_numbers, $cathref_book_names, $cathref_hebrew_books, $cathref_njb_books, $cathref_verses_added, $cathref_popups;
     
     $config = cathref_get_config();
     
@@ -774,6 +852,13 @@ function cathref_substitute_scripture( $matches ) {
                 // KJV
                 if( $config[ 'show_link_KJV' ] ) {
                     $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
+                }
+                // NJB
+                if( $config[ 'show_link_NJB' ] ) {
+                    $jbook = $cathref_njb_books[ $book_number ];
+                    if( $jbook ) {
+                        $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&bible_chapter=$chapter' target='bible'>NJB</a>";
+                    }
                 }
                 
                 // Latin Vulgate
@@ -1050,6 +1135,7 @@ function cathref_options_page() {
         $config[ 'show_link_Greek' ] = (bool) $_POST[ 'show_link_Greek' ];
         $config[ 'show_link_Hebrew' ] = (bool) $_POST[ 'show_link_Hebrew' ];
         $config[ 'show_link_LXX' ] = (bool) $_POST[ 'show_link_LXX' ];
+        $config[ 'show_link_NJB' ] = (bool) $_POST[ 'show_link_NJB' ];
         /*
         $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
         if( isset( $_POST[ '' ] ) ) {
