@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.6
+Version: 0.8.7
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -58,8 +58,8 @@ function cathref_initialize() {
         $cathref_popups
     ;
     
-    $cathref_version = "0.8.6";
-        
+    $cathref_version = "0.8.7";
+    
     $cathref_book_numbers = array(
         'ge' => 1,
         'gen' => 1,
@@ -585,7 +585,15 @@ function cathref_get_config() {
         'quote_prefix' => "<blockquote>",
         'show_quote_header' => true,
         'quote_suffix' => "</blockquote>",
+        'show_link_NAB' => true,
+        'show_link_KJV' => true,
+        'show_link_NIV' => true,
+        'show_link_Vulg' => true,
+        'show_link_Greek' => true,
+        'show_link_Hebrew' => true,
+        'show_link_LXX' => true,
     );
+    
     
     // Stored options
     $stored_config = get_option( $cathref_wp_option_name );
@@ -753,38 +761,52 @@ function cathref_substitute_scripture( $matches ) {
                 $popup .= "<span class='alternates'>View in: ";
                 
                 // NAB
-                $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
-                $nab_book = strtolower( $book_no_spaces );
-                $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
+                if( $config[ 'show_link_NAB' ] ) {
+                    $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
+                    $nab_book = strtolower( $book_no_spaces );
+                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
+                }
                 
                 // NIV
-                $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                if( $config[ 'show_link_NIV' ] ) {
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                }
                 // KJV
-                $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
+                if( $config[ 'show_link_KJV' ] ) {
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
+                }
                 
                 // Latin Vulgate
-                if( $book_number < 47 ) {
-                    $vulg_testament = 0;
-                    $vulg_book = $book_number;
-                } else {
-                    $vulg_testament = 1;
-                    $vulg_book = $book_number - 46;
+                if( $config[ 'show_link_Vulg' ] ) {
+                    if( $book_number < 47 ) {
+                        $vulg_testament = 0;
+                        $vulg_book = $book_number;
+                    } else {
+                        $vulg_testament = 1;
+                        $vulg_book = $book_number - 46;
+                    }
+                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
                 }
-                $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
                 
                 if( $book_number < 47 ) {
                     // Septuagint (LXX)
-                    $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                    if( $config[ 'show_link_LXX' ] ) {
+                        $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                    }
                     // Hebrew - Masoretic Text
-                    $hbook = $cathref_hebrew_books[ $book_number ];
-                    if( $hbook ) {
-                        $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
-                        $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                    if( $config[ 'show_link_Hebrew' ] ) {
+                        $hbook = $cathref_hebrew_books[ $book_number ];
+                        if( $hbook ) {
+                            $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
+                            $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                        }
                     }
                 } else {
                     // Nestle-Aland Greek NT
-                    $nt_book = $book_number - 46;
-                    $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
+                    if( $config[ 'show_link_Greek' ] ) {
+                        $nt_book = $book_number - 46;
+                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
+                    }
                 }
                 
                 $popup .= "</span>";
@@ -1021,6 +1043,13 @@ function cathref_options_page() {
         if( isset( $_POST[ 'quote_suffix' ] ) ) {
             $config[ 'quote_suffix' ] = $_POST[ 'quote_suffix' ];
         }
+        $config[ 'show_link_NAB' ] = (bool) $_POST[ 'show_link_NAB' ];
+        $config[ 'show_link_KJV' ] = (bool) $_POST[ 'show_link_KJV' ];
+        $config[ 'show_link_NIV' ] = (bool) $_POST[ 'show_link_NIV' ];
+        $config[ 'show_link_Vulg' ] = (bool) $_POST[ 'show_link_Vulg' ];
+        $config[ 'show_link_Greek' ] = (bool) $_POST[ 'show_link_Greek' ];
+        $config[ 'show_link_Hebrew' ] = (bool) $_POST[ 'show_link_Hebrew' ];
+        $config[ 'show_link_LXX' ] = (bool) $_POST[ 'show_link_LXX' ];
         /*
         $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
         if( isset( $_POST[ '' ] ) ) {
@@ -1076,6 +1105,20 @@ function cathref_options_page() {
         ?> />
         </div>
         
+        <div>
+        Bible versions linked in popups:
+        <?php foreach( $config as $key => $value ) {
+            if( preg_match( "/^show_link_(.+)$/", $key, $matches ) ) {
+                $opt = $matches[ 0 ];
+                $bible = $matches[ 1 ];
+                ?>
+                <input type="checkbox" name="<?php echo $opt; ?>" <?php
+                    ( $config[ $opt ] ) ? _e( 'checked', 'catholic-reference' ) : ''
+                ?> /><?php echo $bible;
+            }
+        }
+        ?>
+        </div>
         <h3>Advanced</h3>
         
         <div>
