@@ -1,14 +1,21 @@
-### Catholic Reference Extension for Wordpress ###
+== Catholic Reference Extension ==
+Contributors: Pistos
+Tags: catholic,reference,bible,scripture,christian,christianity,catechism,ccc,quote,popup,hover,mouseover,verse,verses,chapter
+Requires at least: 2.0
+Tested up to: 2.2.1
+Stable tag: 0.8.7
 
-Thank you for downloading the Catholic Reference Extension for Wordpress!
+Activates both Scripture references and references to the Catechism of the
+Catholic Church, showing non-intrusive popups when you mouseover them.
 
+== Description ==
 
-#### Prerequisites ####
+The CRE is a Wordpress plugin which activates both Scripture references and
+references to the Catechism of the Catholic Church, showing non-intrusive
+popups when you mouseover them.  No awkward wrapper syntax is required.
+References in old posts and pages are automatically activated.
 
-- The CRE for Wordpress requires PHP 5.
-
-
-#### Installation ####
+== Installation ==
 
 The CRE can be installed just like any normal Wordpress plugin: simply move the
 unpacked contents of this package into a directory called "catholic-reference"
@@ -21,8 +28,7 @@ If you did not download the full CRE package which also contains the texts
 and download the texts separately from there.  The CRE will not function
 without the texts.
 
-
-#### Usage ###
+== Usage ==
 
 The CRE will automatically convert most typical forms of Scripture references.
 You can refer to the book by its full name, or by an abbreviation.
@@ -37,8 +43,7 @@ To quote a passage and have it appear right in your blog post (instead of in
 a popup), use the ` character (the key to the left of the number 1 on most
 keyboards).  For example: `Matthew 28:18-20.
 
-
-#### Contact ####
+== Contact ==
 
 I hope you get some benefit out of using the CRE with your blog.  If you have
 any questions or comments, feel free to visit my blog and leave a comment.
