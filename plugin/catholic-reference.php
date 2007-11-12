@@ -670,6 +670,7 @@ function cathref_get_config() {
         'show_link_Hebrew' => true,
         'show_link_LXX' => true,
         'show_link_NJB' => true,
+        'link_behaviour' => 'target',
     );
     
     
@@ -842,7 +843,8 @@ function cathref_substitute_scripture( $matches ) {
                 if( $config[ 'show_link_NAB' ] ) {
                     $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
                     $nab_book = strtolower( $book_no_spaces );
-                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' target='bible'>NAB</a>";
+                    $opener = cathref_opener();
+                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' $opener>NAB</a>";
                 }
                 
                 // NIV
@@ -909,11 +911,8 @@ function cathref_substitute_scripture( $matches ) {
                     $popup1 .= $popup;
                     $cathref_popups[] = $popup1;
                     
-                    // if( $config[ 'draw_shadows' ] ) {
-                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
-                        // $popup2 .= $popup;
-                        $cathref_popups[] = $popup2;
-                    // }
+                    $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
+                    $cathref_popups[] = $popup2;
                 } else {
                     $retval = $original_span;
                 }
@@ -1070,6 +1069,23 @@ function cathref_filter( $content ) {
     //return $content . "<div class='cathref_test'></div>";
     return $content;
 }
+
+function cathref_opener( $target = 'bible' ) {
+    $config = cathref_get_config();
+    $opener = NULL;
+    switch( $config[ 'link_behaviour' ] ) {
+        case 'target':
+            $opener = "target='$target'";
+            break;
+        case 'js':
+            $opener = 'onclick="window.open(this.href); return false;" onkeypress="window.open(this.href); return false;"';
+            break;
+        case 'nil':
+            $opener = '';
+            break;
+    }
+    return $opener;
+}
     
 /* ******************************************
  * Options and configuration
@@ -1136,12 +1152,7 @@ function cathref_options_page() {
         $config[ 'show_link_Hebrew' ] = (bool) $_POST[ 'show_link_Hebrew' ];
         $config[ 'show_link_LXX' ] = (bool) $_POST[ 'show_link_LXX' ];
         $config[ 'show_link_NJB' ] = (bool) $_POST[ 'show_link_NJB' ];
-        /*
-        $config[ 'draw_shadows' ] = isset( $_POST[ 'draw_shadows' ] );
-        if( isset( $_POST[ '' ] ) ) {
-            
-        }
-        */
+        $config[ 'link_behaviour' ] = $_POST[ 'link_behaviour' ];
         
         update_option( $cathref_wp_option_name, $config );
         $cathref_notices .= __( 'Configuration saved.<br />', 'catholic-reference' );
@@ -1229,6 +1240,19 @@ function cathref_options_page() {
         <td><textarea name="quote_suffix" cols="50" rows="3"><?php echo $config[ 'quote_suffix' ] ?></textarea></td>
         </tr>
         </table>
+        
+        <div>
+        Links open:
+        <input type="radio" name="link_behaviour" value="target" <?php
+            ( $config[ 'link_behaviour' ] == 'target' ) ? _e( 'checked', 'catholic-reference' ) : ''
+        ?> />using target attribute on &lt;a&gt; &nbsp;
+        <input type="radio" name="link_behaviour" value="js" <?php
+            ( $config[ 'link_behaviour' ] == 'js' ) ? _e( 'checked', 'catholic-reference' ) : ''
+        ?> />using Javascript &nbsp;
+        <input type="radio" name="link_behaviour" value="nil" <?php
+            ( $config[ 'link_behaviour' ] == 'nil' ) ? _e( 'checked', 'catholic-reference' ) : ''
+        ?> />in same window
+        </div>
         
         <br />
         <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />
