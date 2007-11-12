@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.7
+Version: 0.8.8
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -59,7 +59,7 @@ function cathref_initialize() {
         $cathref_popups
     ;
     
-    $cathref_version = "0.8.7";
+    $cathref_version = "0.8.8";
     
     $cathref_book_numbers = array(
         'ge' => 1,
@@ -857,7 +857,7 @@ function cathref_substitute_scripture( $matches ) {
                 if( $config[ 'show_link_NJB' ] ) {
                     $jbook = $cathref_njb_books[ $book_number ];
                     if( $jbook ) {
-                        $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&bible_chapter=$chapter' target='bible'>NJB</a>";
+                        $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&amp;bible_chapter=$chapter' target='bible'>NJB</a>";
                     }
                 }
                 
@@ -870,7 +870,7 @@ function cathref_substitute_scripture( $matches ) {
                         $vulg_testament = 1;
                         $vulg_book = $book_number - 46;
                     }
-                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&b=$vulg_book&c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&amp;b=$vulg_book&amp;c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
                 }
                 
                 if( $book_number < 47 ) {
@@ -890,7 +890,7 @@ function cathref_substitute_scripture( $matches ) {
                     // Nestle-Aland Greek NT
                     if( $config[ 'show_link_Greek' ] ) {
                         $nt_book = $book_number - 46;
-                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&c=$chapter' target='bible'>Greek</a>";
+                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&amp;c=$chapter' target='bible'>Greek</a>";
                     }
                 }
                 
