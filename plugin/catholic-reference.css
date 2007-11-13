@@ -79,6 +79,11 @@
     margin-right: 0.25em;
 }
 
+.chapter_number {
+    font-weight: bold;
+    margin-right: 0.5em;
+}
+
 .cccp {
     margin-top: 0.5em;
     margin-bottom: 0.5em;

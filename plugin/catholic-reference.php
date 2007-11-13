@@ -754,6 +754,7 @@ function cathref_scripture_passage( $book_number, $chapters_and_verses ) {
     $scripture_text = "";
     $lines = file( $config[ 'drb_dir' ] . "/$book_number.book", FILE_IGNORE_NEW_LINES );
     $chapters = array_keys( $chapters_and_verses );
+    $previous_chapter = '';
     foreach( $lines as $line ) {
         $parts = explode( "\t", $line, 3 );
         $line_chapter = $parts[ 0 ];
@@ -761,8 +762,14 @@ function cathref_scripture_passage( $book_number, $chapters_and_verses ) {
         $line_text = $parts[ 2 ];
         if( in_array( $line_chapter, $chapters ) ) {
             if( in_array( $line_verse, $chapters_and_verses[ $line_chapter ] ) ) {
+                if( count( $chapters ) > 1 && $line_chapter != $previous_chapter ) {
+                    $chapter_number = "<span class='chapter_number'>$line_chapter</span>";
+                    $previous_chapter = $line_chapter;
+                } else {
+                    $chapter_number = '';
+                }
                 $scripture_text .= "<div class='verse'>";
-                $scripture_text .= "<span class='verse_number'>$line_verse</span>$line_text";
+                $scripture_text .= "$chapter_number<span class='verse_number'>$line_verse</span>$line_text";
                 $scripture_text .= "</div>";
                 $cathref_verses_added++;
             }
@@ -797,14 +804,12 @@ function cathref_substitute_scripture( $matches ) {
             // Parse out chapter and verse ranges.
             
             while( $chapter_and_verse_ranges = array_shift( $matches ) ) {
-                error_log( "chapter_and_verse_ranges: " . var_export( $chapter_and_verse_ranges, true ) );
                 if( preg_match(
                     "/(\\d+) *: *" .  // chapter
                     "(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/i",  // verses
                     $chapter_and_verse_ranges,
                     $matches2
                 ) ) {
-                    error_log( "matches2: " . var_export( $matches2, true ) );
                     $full_range_match = array_shift( $matches2 );
                     $chapter = array_shift( $matches2 );
                     
