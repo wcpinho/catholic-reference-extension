@@ -746,20 +746,21 @@ function cathref_footer() {
     <?
 }
     
-function cathref_scripture_passage( $book_number, $chapter, $verses ) {
+function cathref_scripture_passage( $book_number, $chapters_and_verses ) {
     global $cathref_verses_added;
     
     $config = cathref_get_config();
     $cathref_verses_added = 0;
     $scripture_text = "";
     $lines = file( $config[ 'drb_dir' ] . "/$book_number.book", FILE_IGNORE_NEW_LINES );
-    foreach ( $lines as $line ) {
+    $chapters = array_keys( $chapters_and_verses );
+    foreach( $lines as $line ) {
         $parts = explode( "\t", $line, 3 );
         $line_chapter = $parts[ 0 ];
         $line_verse = (int) $parts[ 1 ];
         $line_text = $parts[ 2 ];
-        if( $line_chapter == $chapter ) {
-            if( in_array( $line_verse, $verses ) ) {
+        if( in_array( $line_chapter, $chapters ) ) {
+            if( in_array( $line_verse, $chapters_and_verses[ $line_chapter ] ) ) {
                 $scripture_text .= "<div class='verse'>";
                 $scripture_text .= "<span class='verse_number'>$line_verse</span>$line_text";
                 $scripture_text .= "</div>";
@@ -776,156 +777,179 @@ function cathref_substitute_scripture( $matches ) {
     $config = cathref_get_config();
     
     $original_span = array_shift( $matches );
-    $retval = $original_span;
     $lead_char = array_shift( $matches );
-    $original_book = array_shift( $matches );
-    
-    $verse_ranges = array_shift( $matches );
-    
-    if( preg_match(
-        "/(\\d+) *: *" .  // chapter
-        "(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/i",  // verses
-        $verse_ranges,
-        $matches2
-    ) ) {
-        $full_range_match = array_shift( $matches2 );
-        $chapter = array_shift( $matches2 );
+    if( $lead_char == "!" ) {
+        $retval = substr( $original_span, 1 );
+    } else {
+        $original_book = array_shift( $matches );
+        $book = strtolower( $original_book );
+        $book_number = $cathref_book_numbers[ $book ] + 0;
         
-        $ranges = array();
-        foreach ( $matches2 as $range ) {
-            if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
-                $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
-            } else {
-                preg_match( "/(\\d+)/", $range, $range_matches );
-                $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
-            }
-        }
-        
-        $verses = array();
-        $range_strs = array();
-        foreach( $ranges as $range ) {
-            for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
-                if( $i >= 0 && $i <= 176 ) {
-                    $verses[] = $i;
-                }
-            }
-            if( $range[ 'start' ] == $range[ 'end' ] ) {
-                $range_strs[] = $range[ 'start' ];
-            } else {
-                $range_strs[] = $range[ 'start' ] . "-" . $range[ 'end' ];
-            }
-        }
-        
-        if( $lead_char == "!" ) {
-            $retval = substr( $retval, 1 );
+        if( ! $book_number ) {
+            $retval = $original_span;
         } else {
-            $book = strtolower( $original_book );
-            $book_number = $cathref_book_numbers[ $book ] + 0;
+            $retval = "";
+            $chapter_and_verses = array();
+            $range_strs = array();
+            $start_chapter = 0;
+            $start_verse = 0;
             
-            if( $book_number ) {
-                $passage = $cathref_book_names[ $book_number ] . " $chapter:";
-                $verse_string = join( ',', $range_strs );
-                $passage .= $verse_string;
-                $start_verse = $ranges[ 0 ][ 'start' ];
-                    
-                if( $lead_char == '`' ) {
-                    $retval = $config[ 'quote_prefix' ];
-                    if( $config[ 'show_quote_header' ] ) {
-                        $retval .= "<div class='cathref_quote_header'>$passage</div>";
-                    }
-                    $retval .= cathref_scripture_passage( $book_number, $chapter, $verses );
-                    $retval .= $config[ 'quote_suffix' ];
-                } else {
+            // Parse out chapter and verse ranges.
             
-                    $id = ( microtime() + rand( 0, 1000 ) );
+            while( $chapter_and_verse_ranges = array_shift( $matches ) ) {
+                error_log( "chapter_and_verse_ranges: " . var_export( $chapter_and_verse_ranges, true ) );
+                if( preg_match(
+                    "/(\\d+) *: *" .  // chapter
+                    "(\\d+(?: *- *\\d+)?)" . "(?: *, *(\\d+(?: *- *\\d+)?))*/i",  // verses
+                    $chapter_and_verse_ranges,
+                    $matches2
+                ) ) {
+                    error_log( "matches2: " . var_export( $matches2, true ) );
+                    $full_range_match = array_shift( $matches2 );
+                    $chapter = array_shift( $matches2 );
                     
-                    $retval = "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$original_book $chapter:$verse_string</span>";
-                    
-                    $popup = "";
-                        
-                    // Header
-                    $popup .= "<div class='scripture_header'>";
-                    $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-                    $popup .= "<span class='passage'>" . $passage . "</span><br />";
-                    $popup .= "<span class='alternates'>View in: ";
-                    
-                    // NAB
-                    if( $config[ 'show_link_NAB' ] ) {
-                        $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
-                        $nab_book = strtolower( $book_no_spaces );
-                        $opener = cathref_opener();
-                        $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' $opener>NAB</a>";
-                    }
-                    
-                    // NIV
-                    if( $config[ 'show_link_NIV' ] ) {
-                        $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
-                    }
-                    // KJV
-                    if( $config[ 'show_link_KJV' ] ) {
-                        $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
-                    }
-                    // NJB
-                    if( $config[ 'show_link_NJB' ] ) {
-                        $jbook = $cathref_njb_books[ $book_number ];
-                        if( $jbook ) {
-                            $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&amp;bible_chapter=$chapter' target='bible'>NJB</a>";
-                        }
-                    }
-                    
-                    // Latin Vulgate
-                    if( $config[ 'show_link_Vulg' ] ) {
-                        if( $book_number < 47 ) {
-                            $vulg_testament = 0;
-                            $vulg_book = $book_number;
+                    $ranges = array();
+                    foreach ( $matches2 as $range ) {
+                        if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
+                            $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 2 ] );
                         } else {
-                            $vulg_testament = 1;
-                            $vulg_book = $book_number - 46;
+                            preg_match( "/(\\d+)/", $range, $range_matches );
+                            $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
                         }
-                        $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&amp;b=$vulg_book&amp;c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                    }
+                    if( ! $start_chapter ) {
+                        $start_chapter = $chapter;
+                    }
+                    if( ! $start_verse ) {
+                        $start_verse = $ranges[ 0 ][ 'start' ];
                     }
                     
-                    if( $book_number < 47 ) {
-                        // Septuagint (LXX)
-                        if( $config[ 'show_link_LXX' ] ) {
-                            $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
-                        }
-                        // Hebrew - Masoretic Text
-                        if( $config[ 'show_link_Hebrew' ] ) {
-                            $hbook = $cathref_hebrew_books[ $book_number ];
-                            if( $hbook ) {
-                                $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
-                                $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                    $verses = array();
+                    $range_strs[ $chapter ] = array();
+                    foreach( $ranges as $range ) {
+                        for( $i = $range[ 'start' ]; $i <= $range[ 'end' ]; $i++ ) {
+                            if( $i >= 0 && $i <= 176 ) {
+                                $verses[] = $i;
                             }
                         }
-                    } else {
-                        // Nestle-Aland Greek NT
-                        if( $config[ 'show_link_Greek' ] ) {
-                            $nt_book = $book_number - 46;
-                            $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&amp;c=$chapter' target='bible'>Greek</a>";
+                        if( $range[ 'start' ] == $range[ 'end' ] ) {
+                            $range_strs[ $chapter ][] = $range[ 'start' ];
+                        } else {
+                            $range_strs[ $chapter ][] = $range[ 'start' ] . "-" . $range[ 'end' ];
                         }
                     }
                     
-                    $popup .= "</span>";
-                    $popup .= "</div>";
+                    $chapter_and_verses[ $chapter ] = $verses;
+                
+                }
+            }
+            
+            // Build actual Scripture text from the parsed ranges.
+            
+            $sub_passages = array();
+            foreach( $chapter_and_verses as $chapter => $verses ) {
+                $sub_passages []= "$chapter:" . join( ',', $range_strs[ $chapter ] );
+            }
+            $passage = $cathref_book_names[ $book_number ] . " " .
+                join( '; ', $sub_passages );
+            
+            if( $lead_char == '`' ) {
+                $retval .= $config[ 'quote_prefix' ];
+                if( $config[ 'show_quote_header' ] ) {
+                    $retval .= "<div class='cathref_quote_header'>$passage</div>";
+                }
+                $retval .= cathref_scripture_passage( $book_number, $chapter_and_verses );
+                $retval .= $config[ 'quote_suffix' ];
+            } else {
+        
+                $id = ( microtime() + rand( 0, 1000 ) );
+                
+                $retval .= "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$passage</span>";
+                
+                $popup = "";
                     
-                    // Body
-                    $popup .= "<div class='scripture_text'>";
-                    $popup .= cathref_scripture_passage( $book_number, $chapter, $verses );
-                    $popup .= "</div>";
-                    
-                    $popup .= "</div>";
-                    
-                    if( $cathref_verses_added > 0 ) {
-                        $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
-                        $popup1 .= $popup;
-                        $cathref_popups[] = $popup1;
-                        
-                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
-                        $cathref_popups[] = $popup2;
-                    } else {
-                        $retval = $original_span;
+                // Header
+                $popup .= "<div class='scripture_header'>";
+                $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
+                $popup .= "<span class='passage'>" . $passage . "</span><br />";
+                $popup .= "<span class='alternates'>View in: ";
+                
+                // NAB
+                if( $config[ 'show_link_NAB' ] ) {
+                    $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
+                    $nab_book = strtolower( $book_no_spaces );
+                    $opener = cathref_opener();
+                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' $opener>NAB</a>";
+                }
+                
+                // NIV
+                if( $config[ 'show_link_NIV' ] ) {
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                }
+                // KJV
+                if( $config[ 'show_link_KJV' ] ) {
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
+                }
+                // NJB
+                if( $config[ 'show_link_NJB' ] ) {
+                    $jbook = $cathref_njb_books[ $book_number ];
+                    if( $jbook ) {
+                        $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&amp;bible_chapter=$chapter' target='bible'>NJB</a>";
                     }
+                }
+                
+                // Latin Vulgate
+                if( $config[ 'show_link_Vulg' ] ) {
+                    if( $book_number < 47 ) {
+                        $vulg_testament = 0;
+                        $vulg_book = $book_number;
+                    } else {
+                        $vulg_testament = 1;
+                        $vulg_book = $book_number - 46;
+                    }
+                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&amp;b=$vulg_book&amp;c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                }
+                
+                if( $book_number < 47 ) {
+                    // Septuagint (LXX)
+                    if( $config[ 'show_link_LXX' ] ) {
+                        $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                    }
+                    // Hebrew - Masoretic Text
+                    if( $config[ 'show_link_Hebrew' ] ) {
+                        $hbook = $cathref_hebrew_books[ $book_number ];
+                        if( $hbook ) {
+                            $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
+                            $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                        }
+                    }
+                } else {
+                    // Nestle-Aland Greek NT
+                    if( $config[ 'show_link_Greek' ] ) {
+                        $nt_book = $book_number - 46;
+                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&amp;c=$chapter' target='bible'>Greek</a>";
+                    }
+                }
+                
+                $popup .= "</span>";
+                $popup .= "</div>";
+                
+                // Body
+                $popup .= "<div class='scripture_text'>";
+                $popup .= cathref_scripture_passage( $book_number, $chapter_and_verses );
+                $popup .= "</div>";
+                
+                $popup .= "</div>";
+                
+                if( $cathref_verses_added > 0 ) {
+                    $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
+                    $popup1 .= $popup;
+                    $cathref_popups[] = $popup1;
+                    
+                    $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
+                    $cathref_popups[] = $popup2;
+                } else {
+                    $retval = $original_span;
                 }
             }
         }
@@ -1060,8 +1084,18 @@ function cathref_filter( $content ) {
     if( cathref_drb_text_exists() ) {
         $content = preg_replace_callback(
             "/(.)($book_regexp)\\.? +" . // book
-            "(\\d+ *: *" .  // chapter
-            "\\d+(?: *- *\\d+)?" . "(?: *, *\\d+(?: *- *\\d+)?)*)/i",  // verses
+            "(" . // first chapter range
+                "\\d+ *: *" .  // chapter
+                "\\d+(?: *- *\\d+)?" .  // first verse range
+                "(?: *, *\\d+(?: *- *\\d+)?)*" . // more verse ranges
+            ")" .
+            "(?: *; *" .
+                "(" . // more chapter ranges
+                    "\\d+ *: *" .  // chapter
+                    "\\d+(?: *- *\\d+)?" .  // first verse range
+                    "(?: *, *\\d+(?: *- *\\d+)?)*" . // more verse ranges
+                ")" .
+            ")*/i",
             'cathref_substitute_scripture',
             $content
         );
