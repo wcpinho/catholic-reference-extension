@@ -3,7 +3,7 @@ Contributors: Pistos
 Tags: catholic,reference,bible,scripture,christian,christianity,catechism,ccc,quote,popup,hover,mouseover,verse,verses,chapter
 Requires at least: 2.0
 Tested up to: 2.3.1
-Stable tag: 0.8.8
+Stable tag: 0.8.9
 
 Activates both Scripture references and references to the Catechism of the
 Catholic Church, showing non-intrusive popups when you mouseover them.
