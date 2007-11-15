@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.8
+Version: 0.8.9
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -59,7 +59,7 @@ function cathref_initialize() {
         $cathref_popups
     ;
     
-    $cathref_version = "0.8.8";
+    $cathref_version = "0.8.9";
     
     $cathref_book_numbers = array(
         'ge' => 1,
@@ -883,17 +883,20 @@ function cathref_substitute_scripture( $matches ) {
                 if( $config[ 'show_link_NAB' ] ) {
                     $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
                     $nab_book = strtolower( $book_no_spaces );
+                    if( $nab_book == 'psalm' ) {
+                        $psalm_fix = 's';
+                    }
                     $opener = cathref_opener();
-                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book/$nab_book$chapter.htm#v$start_verse' $opener>NAB</a>";
+                    $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book$psalm_fix/$nab_book$chapter.htm#v$start_verse' $opener>NAB</a>";
                 }
                 
                 // NIV
                 if( $config[ 'show_link_NIV' ] ) {
-                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=31' target='bible'>NIV</a>";
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=31' target='bible'>NIV</a>";
                 }
                 // KJV
                 if( $config[ 'show_link_KJV' ] ) {
-                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&version=9' target='bible'>KJV</a>";
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=9' target='bible'>KJV</a>";
                 }
                 // NJB
                 if( $config[ 'show_link_NJB' ] ) {
