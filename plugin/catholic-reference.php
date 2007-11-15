@@ -879,30 +879,31 @@ function cathref_substitute_scripture( $matches ) {
                 $popup .= "<span class='passage'>" . $passage . "</span><br />";
                 $popup .= "<span class='alternates'>View in: ";
                 
+                $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
+                if( $book_no_spaces == 'Psalm' ) {
+                    $psalm_fix = 's';
+                }
+                
                 // NAB
                 if( $config[ 'show_link_NAB' ] ) {
-                    $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
                     $nab_book = strtolower( $book_no_spaces );
-                    if( $nab_book == 'psalm' ) {
-                        $psalm_fix = 's';
-                    }
                     $opener = cathref_opener();
                     $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book$psalm_fix/$nab_book$chapter.htm#v$start_verse' $opener>NAB</a>";
                 }
                 
                 // NIV
                 if( $config[ 'show_link_NIV' ] ) {
-                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=31' target='bible'>NIV</a>";
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=31' $opener>NIV</a>";
                 }
                 // KJV
                 if( $config[ 'show_link_KJV' ] ) {
-                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=9' target='bible'>KJV</a>";
+                    $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=9' $opener>KJV</a>";
                 }
                 // NJB
                 if( $config[ 'show_link_NJB' ] ) {
                     $jbook = $cathref_njb_books[ $book_number ];
                     if( $jbook ) {
-                        $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&amp;bible_chapter=$chapter' target='bible'>NJB</a>";
+                        $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&amp;bible_chapter=$chapter' $opener>NJB</a>";
                     }
                 }
                 
@@ -915,27 +916,27 @@ function cathref_substitute_scripture( $matches ) {
                         $vulg_testament = 1;
                         $vulg_book = $book_number - 46;
                     }
-                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&amp;b=$vulg_book&amp;c=$chapter#$chapter" . "_" . $start_verse . "' target='bible'>Vulg</a>";
+                    $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&amp;b=$vulg_book&amp;c=$chapter#$chapter" . "_" . $start_verse . "' $opener>Vulg</a>";
                 }
                 
                 if( $book_number < 47 ) {
                     // Septuagint (LXX)
                     if( $config[ 'show_link_LXX' ] ) {
-                        $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces/$book_no_spaces$chapter.html' target='bible'>LXX</a>";
+                        $popup .= " <a href='http://septuagint.org/LXX/$book_no_spaces$psalm_fix/$book_no_spaces$psalm_fix$chapter.html' $opener>LXX</a>";
                     }
                     // Hebrew - Masoretic Text
                     if( $config[ 'show_link_Hebrew' ] ) {
                         $hbook = $cathref_hebrew_books[ $book_number ];
                         if( $hbook ) {
                             $hchapter = sprintf( "%02d", ( 0 + $chapter ) );
-                            $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' target='bible'>Hebrew</a>";
+                            $popup .= " <a href='http://www.mechon-mamre.org/p/pt/pt$hbook$hchapter.htm#$start_verse' $opener>Hebrew</a>";
                         }
                     }
                 } else {
                     // Nestle-Aland Greek NT
                     if( $config[ 'show_link_Greek' ] ) {
                         $nt_book = $book_number - 46;
-                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&amp;c=$chapter' target='bible'>Greek</a>";
+                        $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&amp;c=$chapter' $opener>Greek</a>";
                     }
                 }
                 
