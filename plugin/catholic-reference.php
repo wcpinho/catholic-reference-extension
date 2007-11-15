@@ -723,6 +723,15 @@ function cathref_header() {
         .scripture_popup, .scripture_popup_shadow, .ccc_popup, .ccc_popup_shadow {
             width: <?php echo( $config[ 'popup_width' ] ); ?>px;
         }
+        <?php
+        if( ! $config[ 'show_popup_on_hover' ] ) {
+            ?>
+            .scripture_reference:hover, .ccc_reference:hover {
+                cursor: pointer;
+            }
+            <?php
+        }
+        ?>
     </style>
     <?php
 }
