@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.10
+Version: 0.8.11
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -746,7 +746,7 @@ function cathref_admin_header() {
 }
 
 function cathref_footer() {
-    global $cathref_site;
+    global $cathref_site, $cathref_version;
     ?>
     <div class="cathref_footer">
     Scripture and Catechism references powered by
@@ -1099,6 +1099,11 @@ function cathref_substitute_ccc( $matches ) {
 
 function cathref_filter( $content ) {
     global $cathref_book_numbers, $cathref_popups;
+    
+    $nocathref_removed = preg_replace( '/\[nocathref\]/i', '', $content );
+    if( $nocathref_removed != $content ) {
+        return $nocathref_removed;
+    }
     
     $book_regexp = join( '|', array_keys( $cathref_book_numbers ) );
 
