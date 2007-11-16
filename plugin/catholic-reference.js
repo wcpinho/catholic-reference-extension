@@ -1,3 +1,5 @@
+jQuery.noConflict();
+
 var cathref_popup_activated = new Object;
 var cathref_popup_timers = new Object;
 var cathref_popup_showing = new Object;
@@ -65,13 +67,14 @@ function show_popup( id, event, type ) {
 }
 
 function popup_by_id( id, type ) {
-    return $( 'div.' + type + '_popup[@popid="' + id + '"]' );
+    return jQuery( 'div.' + type + '_popup[@popid="' + id + '"]' );
 }
 function shadow_by_id( id, type ) {
-    return $( 'div.' + type + '_popup_shadow[@popid="' + id + '"]' );
+    return jQuery( 'div.' + type + '_popup_shadow[@popid="' + id + '"]' );
 }
 
 function reference_activated( event ) {
+    var $ = jQuery;
     var this_obj = $( this );
     var id = $( this ).attr( 'refid' );
     cathref_ref_timers[ id ] = setTimeout(
@@ -89,6 +92,7 @@ function reference_activated( event ) {
     );
 }
 function reference_deactivated() {
+    var $ = jQuery;
     var this_obj = $( this );
     var id = $( this ).attr( 'refid' );
     clearTimeout( cathref_ref_timers[ id ] );
@@ -102,7 +106,7 @@ function reference_deactivated() {
     );
 }
 
-$(document).ready( function() {
+jQuery(document).ready( function($) {
     window_height = get_window_height();
     
     $( '.scripture_popup' ).hover(
