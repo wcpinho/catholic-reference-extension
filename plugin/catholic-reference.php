@@ -15,7 +15,9 @@ Full book names (e.g. Genesis 1:1) or abbreviated book names, with or without
 a period (e.g. Exo. 2:10-15, Jn 3:16).
 
 To prevent the CRE from transforming text which appears to be a scripture reference,
-put an exclamation mark before the reference (e.g. !Matthew 28:20).
+put an exclamation mark before the reference (e.g. !Matthew 28:20).  You can also
+use the string "[nocathref]" anywhere in the post to prevent the CRE from operating
+on any references in the whole post.
 
 To reference the Catechism of the Catholic Church, use paragraph numbers.
 Multiple paragraphs can be enumerated using commas and dashes.  Examples:

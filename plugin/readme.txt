@@ -37,7 +37,9 @@ To refer to a Catechism paragraph, use "CCC" before the paragraph number(s).
 For example: CCC 1210-1212.
 
 If for some reason you do not want the CRE to activate some text, put an
-exclamation point in front.  For example: !John 3:16.  
+exclamation point in front.  For example: !John 3:16.  You can also use the
+string "[nocathref]" anywhere in the post to prevent the CRE from operating
+on any references in the whole post.
 
 To quote a passage and have it appear right in your blog post (instead of in
 a popup), use the ` character (the key to the left of the number 1 on most
