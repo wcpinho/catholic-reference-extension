@@ -106,6 +106,11 @@ function reference_deactivated() {
     );
 }
 
+function has_nocathref() {
+    var $ = jQuery;
+    return !!( /\[nocathref\]/.exec( $( 'textarea#content' ).val() ) );
+}
+
 jQuery(document).ready( function($) {
     window_height = get_window_height();
     
@@ -152,9 +157,27 @@ jQuery(document).ready( function($) {
        Admin
     */
     
-    $( '.cathref_config input' ).click(
-        function() {
-            $( '.cathref_config_notice' ).html( '&nbsp;' );
+    $( '.cathref_config input' ).click( function() {
+        $( '.cathref_config_notice' ).html( '&nbsp;' );
+    } );
+    
+    $( '#disable-cre' ).click( function() {
+        if( $( '#disable-cre' ).get(0).checked ) {
+            if( ! has_nocathref() ) {
+                $( 'textarea#content' ).val(
+                    "[nocathref]\n" + $( 'textarea#content' ).val()
+                );
+            }
+        } else {
+            $( 'textarea#content' ).val(
+                $( 'textarea#content' ).val().replace(
+                    /\[nocathref\]\s+/g,
+                    ''
+                )
+            );
         }
-    );
+    } );
+    
+    $( '#disable-cre' ).get(0).checked = has_nocathref();
+    
 } );

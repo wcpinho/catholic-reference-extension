@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.11
+Version: 0.8.12
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -646,6 +646,7 @@ function cathref_initialize() {
     add_action( 'wp_head', 'cathref_header' );
     add_action( 'wp_footer', 'cathref_footer' );
     add_action( 'admin_head', 'cathref_admin_header' );
+    add_action( 'dbx_post_sidebar', 'cathref_admin_sidebar' );
     add_filter( 'the_content', 'cathref_filter' );
     add_action( 'admin_menu', 'cathref_options_page_adder' );
     add_action( 'activate_catholic-reference/catholic-reference.php', 'cathref_on_activation' );
@@ -745,6 +746,20 @@ function cathref_admin_header() {
     <script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/js/jquery-1.1.3.1.pack.js"></script>
     <script type="text/javascript" src="<?php print $cathref_plugin_dir ?>/catholic-reference.js"></script>
     <?php
+}
+
+function cathref_admin_sidebar() {
+    ?>
+    <fieldset id='cathref_fieldset' class='dbx-box'>
+      <h3 class='dbx-handle'>CRE</h3>
+      <div class='dbx-content'>
+        <label>
+          <input type="checkbox" id="disable-cre"/>
+          Disable the Catholic Reference Extension in this post/page
+        </label>
+      </div>
+    </fieldset>
+    <?
 }
 
 function cathref_footer() {
