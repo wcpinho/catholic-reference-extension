@@ -178,6 +178,9 @@ jQuery(document).ready( function($) {
         }
     } );
     
-    $( '#disable-cre' ).get(0).checked = has_nocathref();
+    var checkbox = $( '#disable-cre' ).get(0);
+    if( checkbox ) {
+        checkbox.checked = has_nocathref();
+    }
     
 } );
