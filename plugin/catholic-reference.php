@@ -984,8 +984,10 @@ function cathref_substitute_scripture( $matches ) {
                     $popup1 .= $popup;
                     $cathref_popups[] = $popup1;
                     
-                    $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
-                    $cathref_popups[] = $popup2;
+                    if( $config[ 'draw_shadows' ] ) {
+                        $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
+                        $cathref_popups[] = $popup2;
+                    }
                 } else {
                     $retval = $original_span;
                 }
@@ -1101,11 +1103,13 @@ function cathref_substitute_ccc( $matches ) {
             $popup .= "</div>";
             
             $popup1 .= $popup;
-            // $popup2 .= $popup;
+            $popup2 .= $popup;
             
             if( $cathref_paragraphs_added > 0 ) {
                 $cathref_popups[] = $popup1;
-                $cathref_popups[] = $popup2;
+                if( $config[ 'draw_shadows' ] ) {
+                    $cathref_popups[] = $popup2;
+                }
                 $retval = "$lead_char<span class=\"ccc_reference\" refid=\"$id\">" . substr( $original_span, 1 ) . "</span>";
             }
         }
@@ -1211,6 +1215,7 @@ function cathref_options_page() {
             $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
         }
         $config[ 'show_quote_header' ] = (bool) $_POST[ 'show_quote_header' ];
+        $config[ 'draw_shadows' ] = (bool) $_POST[ 'draw_shadows' ];
         if( isset( $_POST[ 'drb_dir' ] ) ) {
             $config[ 'drb_dir' ] = $_POST[ 'drb_dir' ];
         }
@@ -1282,6 +1287,13 @@ function cathref_options_page() {
         <div>
         Popup width:
         <input type="text" name="popup_width" value="<?php echo $config[ 'popup_width' ] ?>" size="4" />pixels
+        </div>
+        
+        <div>
+        Draw drop shadows:
+        <input type="checkbox" name="draw_shadows" <?php
+            ( $config[ 'draw_shadows' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
+        ?> />
         </div>
         
         <div>
