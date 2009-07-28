@@ -884,16 +884,16 @@ function cathref_substitute_scripture( $matches ) {
 
                 $retval .= "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$passage</span>";
 
-                if( $config[ 'show_bible_version' ] ) {
-                    $retval .= ' (Douay-Rheims)';
-                }
-
                 $popup = "";
 
                 // Header
                 $popup .= "<div class='scripture_header'>";
                 $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
-                $popup .= "<span class='passage'>" . $passage . "</span><br />";
+                $popup .= "<span class='passage'>" . $passage . "</span>";
+                if( $config[ 'show_bible_version' ] ) {
+                    $popup .= ' (Douay-Rheims)';
+                }
+                $popup .= "<br />";
                 $popup .= "<span class='alternates'>View in: ";
 
                 $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
