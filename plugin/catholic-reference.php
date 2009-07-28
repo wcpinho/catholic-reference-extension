@@ -3,7 +3,7 @@
 Plugin Name: Catholic Reference Extension
 Plugin URI: http://blog.purepistos.net/index.php/cre/
 Description: The Catholic Reference Extension makes scripture and Catechism references pop up the actual bible or Catechism text.
-Version: 0.8.14
+Version: 0.8.15
 Author: Pistos
 Author URI: http://blog.purepistos.net
 
@@ -46,9 +46,9 @@ function cathref_initialize() {
         $cathref_site,
         $cathref_popups
     ;
-    
-    $cathref_version = "0.8.14";
-    
+
+    $cathref_version = "0.8.15";
+
     $cathref_book_numbers = array(
         'ge' => 1,
         'gen' => 1,
@@ -429,7 +429,7 @@ function cathref_initialize() {
         'apo' => 73,
         'apoc' => 73,
     );
-        
+
     $cathref_book_names = array(
         1 => 'Genesis',
         2 => 'Exodus',
@@ -505,7 +505,7 @@ function cathref_initialize() {
         72 => 'Jude',
         73 => 'Revelation',
     );
-        
+
     $cathref_hebrew_books = array(
         1 => '01',
         2 => '02',
@@ -547,7 +547,7 @@ function cathref_initialize() {
         15 => '35a',
         16 => '35b',
     );
-    
+
     $cathref_njb_books = array(
         1 => '1',
         2 => '2',
@@ -623,10 +623,10 @@ function cathref_initialize() {
         72 => '63',
         73 => '64',
     );
-        
+
     $cathref_wp_option_name = "catholic-reference-extension-options";
     $cathref_site = "http://blog.purepistos.net/index.php/cre";
-    
+
     $cathref_popups = array();
 
     add_action( 'wp_head', 'cathref_header' );
@@ -637,13 +637,14 @@ function cathref_initialize() {
     add_action( 'admin_menu', 'cathref_options_page_adder' );
     add_action( 'activate_catholic-reference/catholic-reference.php', 'cathref_on_activation' );
 }
-    
+
 function cathref_get_config() {
     global $cathref_wp_option_name;
-    
+
     // Defaults
     $config = array(
         'show_popup_on_hover' => true,
+        'show_bible_version' => false,
         'draw_shadows' => true,
         'drb_dir' => dirname( __FILE__ ) . '/texts/drb',
         'ccc_dir' => dirname( __FILE__ ) . '/texts/ccc',
@@ -661,8 +662,8 @@ function cathref_get_config() {
         'show_link_NJB' => true,
         'link_behaviour' => 'target',
     );
-    
-    
+
+
     // Stored options
     $stored_config = get_option( $cathref_wp_option_name );
     if( ! empty( $stored_config ) ) {
@@ -670,29 +671,29 @@ function cathref_get_config() {
             $config[ $key ] = $value;
         }
     }
-    
+
     // Save options
     update_option( $cathref_wp_option_name, $config );
-    
+
     return $config;
 }
-    
+
 function cathref_on_activation() {
     cathref_get_config();
 }
-    
+
 function cathref_drb_text_exists() {
     $config = cathref_get_config();
     return( file_exists( $config[ 'drb_dir' ] . "/1.book" ) );
 }
-    
+
 function cathref_ccc_text_exists() {
     $config = cathref_get_config();
     return( file_exists( $config[ 'ccc_dir' ] . "/ccc-1-100.txt" ) );
 }
-        
+
 /* ****************************************** */
-    
+
 function cathref_header() {
     $config = cathref_get_config();
     $cathref_plugin_dir = get_settings( 'siteurl' ) . "/wp-content/plugins/catholic-reference";
@@ -724,7 +725,7 @@ function cathref_header() {
     </style>
     <?php
 }
-    
+
 function cathref_admin_header() {
     $cathref_plugin_dir = get_settings( 'siteurl' ) . "/wp-content/plugins/catholic-reference";
     ?>
@@ -757,10 +758,10 @@ function cathref_footer() {
     </div>
     <?
 }
-    
+
 function cathref_scripture_passage( $book_number, $chapters_and_verses ) {
     global $cathref_verses_added;
-    
+
     $config = cathref_get_config();
     $cathref_verses_added = 0;
     $scripture_text = "";
@@ -792,9 +793,9 @@ function cathref_scripture_passage( $book_number, $chapters_and_verses ) {
 
 function cathref_substitute_scripture( $matches ) {
     global $cathref_book_numbers, $cathref_book_names, $cathref_hebrew_books, $cathref_njb_books, $cathref_verses_added, $cathref_popups;
-    
+
     $config = cathref_get_config();
-    
+
     $original_span = array_shift( $matches );
     $lead_char = array_shift( $matches );
     if( $lead_char == "!" ) {
@@ -803,7 +804,7 @@ function cathref_substitute_scripture( $matches ) {
         $original_book = array_shift( $matches );
         $book = strtolower( $original_book );
         $book_number = $cathref_book_numbers[ $book ] + 0;
-        
+
         if( ! $book_number ) {
             $retval = $original_span;
         } else {
@@ -812,9 +813,9 @@ function cathref_substitute_scripture( $matches ) {
             $range_strs = array();
             $start_chapter = 0;
             $start_verse = 0;
-            
+
             // Parse out chapter and verse ranges.
-            
+
             while( $chapter_and_verse_ranges = array_shift( $matches ) ) {
                 if( preg_match(
                     "/(\\d+) *: *" .  // chapter
@@ -824,7 +825,7 @@ function cathref_substitute_scripture( $matches ) {
                 ) ) {
                     $full_range_match = array_shift( $matches2 );
                     $chapter = array_shift( $matches2 );
-                    
+
                     $ranges = array();
                     foreach ( $matches2 as $range ) {
                         if( preg_match( "/(\\d+)[^0-9]+(\\d+)/", $range, $range_matches ) ) {
@@ -840,7 +841,7 @@ function cathref_substitute_scripture( $matches ) {
                     if( ! $start_verse ) {
                         $start_verse = $ranges[ 0 ][ 'start' ];
                     }
-                    
+
                     $verses = array();
                     $range_strs[ $chapter ] = array();
                     foreach( $ranges as $range ) {
@@ -855,21 +856,21 @@ function cathref_substitute_scripture( $matches ) {
                             $range_strs[ $chapter ][] = $range[ 'start' ] . "-" . $range[ 'end' ];
                         }
                     }
-                    
+
                     $chapter_and_verses[ $chapter ] = $verses;
-                
+
                 }
             }
-            
+
             // Build actual Scripture text from the parsed ranges.
-            
+
             $sub_passages = array();
             foreach( $chapter_and_verses as $chapter => $verses ) {
                 $sub_passages []= "$chapter:" . join( ',', $range_strs[ $chapter ] );
             }
             $passage = $cathref_book_names[ $book_number ] . " " .
                 join( '; ', $sub_passages );
-            
+
             if( $lead_char == '`' ) {
                 $retval .= $config[ 'quote_prefix' ];
                 if( $config[ 'show_quote_header' ] ) {
@@ -878,19 +879,23 @@ function cathref_substitute_scripture( $matches ) {
                 $retval .= cathref_scripture_passage( $book_number, $chapter_and_verses );
                 $retval .= $config[ 'quote_suffix' ];
             } else {
-        
+
                 $id = ( microtime() + rand( 0, 1000 ) );
-                
+
                 $retval .= "$lead_char<span class=\"scripture_reference\" refid=\"$id\">$passage</span>";
-                
+
+                if( $config[ 'show_bible_version' ] ) {
+                    $retval .= ' (Douay-Rheims)';
+                }
+
                 $popup = "";
-                    
+
                 // Header
                 $popup .= "<div class='scripture_header'>";
                 $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
                 $popup .= "<span class='passage'>" . $passage . "</span><br />";
                 $popup .= "<span class='alternates'>View in: ";
-                
+
                 $book_no_spaces = str_replace( ' ', '', $cathref_book_names[ $book_number ] );
                 if( $book_no_spaces == 'Psalm' ) {
                     $psalm_fix = 's';
@@ -899,13 +904,13 @@ function cathref_substitute_scripture( $matches ) {
                 if( $config[ 'link_behaviour' ] != 'nil' ) {
                     $title = "title='(opens $passage in a new window)'";
                 }
-                
+
                 // NAB
                 if( $config[ 'show_link_NAB' ] ) {
                     $nab_book = strtolower( $book_no_spaces );
                     $popup .= "<a href='http://www.usccb.org/nab/bible/$nab_book$psalm_fix/$nab_book$chapter.htm#v$start_verse' $opener $title>NAB</a>";
                 }
-                
+
                 // NIV
                 if( $config[ 'show_link_NIV' ] ) {
                     $popup .= " <a href='http://www.biblegateway.com/passage/?search=" . urlencode( $passage ) . "&amp;version=31' $opener $title>NIV</a>";
@@ -921,7 +926,7 @@ function cathref_substitute_scripture( $matches ) {
                         $popup .= " <a href='http://www.catholic.org/bible/book.php?id=$jbook&amp;bible_chapter=$chapter' $opener $title>NJB</a>";
                     }
                 }
-                
+
                 // Latin Vulgate
                 if( $config[ 'show_link_Vulg' ] ) {
                     if( $book_number < 47 ) {
@@ -933,7 +938,7 @@ function cathref_substitute_scripture( $matches ) {
                     }
                     $popup .= " <a href='http://www.latinvulgate.com/verse.aspx?t=$vulg_testament&amp;b=$vulg_book&amp;c=$chapter#$chapter" . "_" . $start_verse . "' $opener $title>Vulg</a>";
                 }
-                
+
                 if( $book_number < 47 ) {
                     // Septuagint (LXX)
                     if( $config[ 'show_link_LXX' ] ) {
@@ -954,22 +959,22 @@ function cathref_substitute_scripture( $matches ) {
                         $popup .= " <a href='http://www.greekbible.com/index.php?b=$nt_book&amp;c=$chapter' $opener $title>Greek</a>";
                     }
                 }
-                
+
                 $popup .= "</span>";
                 $popup .= "</div>";
-                
+
                 // Body
                 $popup .= "<div class='scripture_text'>";
                 $popup .= cathref_scripture_passage( $book_number, $chapter_and_verses );
                 $popup .= "</div>";
-                
+
                 $popup .= "</div>";
-                
+
                 if( $cathref_verses_added > 0 ) {
                     $popup1 = "<div class=\"scripture_popup\" popid=\"$id\">";
                     $popup1 .= $popup;
                     $cathref_popups[] = $popup1;
-                    
+
                     if( $config[ 'draw_shadows' ] ) {
                         $popup2 = "<div class=\"scripture_popup_shadow\" popid=\"$id\"></div>";
                         $cathref_popups[] = $popup2;
@@ -980,17 +985,17 @@ function cathref_substitute_scripture( $matches ) {
             }
         }
     }
-    
+
     return $retval;
 }
-    
+
 function cathref_ccc_paragraphs( $paras ) {
     global $cathref_paragraphs_added;
-    
+
     $config = cathref_get_config();
     $cathref_paragraphs_added = 0;
     $text = "";
-    
+
     foreach( $paras as $para ) {
         if( $para < 101 ) {
             $filename = "ccc-1-100.txt";
@@ -1019,18 +1024,18 @@ function cathref_ccc_paragraphs( $paras ) {
             }
         }
     }
-    
+
     return $text;
 }
-    
+
 function cathref_substitute_ccc( $matches ) {
     global $cathref_paragraphs_added, $cathref_popups;
-    
+
     $config = cathref_get_config();
     $original_span = array_shift( $matches );
     $retval = $original_span;
     $lead_char = array_shift( $matches );
-    
+
     if( $lead_char == '!' ) {
         $retval = substr( $retval, 1 );
     } else {
@@ -1043,7 +1048,7 @@ function cathref_substitute_ccc( $matches ) {
                 $ranges[] = array( 'start' => $range_matches[ 1 ], 'end' => $range_matches[ 1 ] );
             }
         }
-        
+
         $paras = array();
         $range_strs = array();
         foreach( $ranges as $range ) {
@@ -1059,7 +1064,7 @@ function cathref_substitute_ccc( $matches ) {
             }
         }
         $ccc_references = "CCC " . join( ',', $range_strs );
-        
+
         if( $lead_char == '`' ) {
             $retval = $config[ 'quote_prefix' ];
             if( $config[ 'show_quote_header' ] ) {
@@ -1069,28 +1074,28 @@ function cathref_substitute_ccc( $matches ) {
             $retval .= $config[ 'quote_suffix' ];
         } else {
             $id = ( microtime() + rand( 0, 1000 ) );
-            
+
             $popup1 = "<div class=\"ccc_popup\" popid=\"$id\">";
             $popup2 = "<div class=\"ccc_popup_shadow\" popid=\"$id\"></div>";
             $popup = "";
-                
+
             // Header
             $popup .= "<div class='ccc_header'>";
             $popup .= "<div class='cathref_close_button' closeid='$id'><div class='cathref_close_button_highlight'></div></div>";
             $popup .= $ccc_references;
             $popup .= "</div>";
-            
+
             // Body
-            
+
             $popup .= "<div class='ccc_text'>";
             $popup .= cathref_ccc_paragraphs( $paras );
             $popup .= "</div>";
-            
+
             $popup .= "</div>";
-            
+
             $popup1 .= $popup;
             $popup2 .= $popup;
-            
+
             if( $cathref_paragraphs_added > 0 ) {
                 $cathref_popups[] = $popup1;
                 if( $config[ 'draw_shadows' ] ) {
@@ -1100,18 +1105,18 @@ function cathref_substitute_ccc( $matches ) {
             }
         }
     }
-    
+
     return $retval;
 }
 
 function cathref_filter( $content ) {
     global $cathref_book_numbers, $cathref_popups;
-    
+
     $nocathref_removed = preg_replace( '/\[nocathref\]/i', '', $content );
     if( $nocathref_removed != $content ) {
         return $nocathref_removed;
     }
-    
+
     $book_regexp = join( '|', array_keys( $cathref_book_numbers ) );
 
     if( cathref_drb_text_exists() ) {
@@ -1140,11 +1145,11 @@ function cathref_filter( $content ) {
             $content
         );
     }
-    
+
     foreach ( $cathref_popups as $popup ) {
         $content .= $popup;
     }
-    
+
     //return $content . "<div class='cathref_test'></div>";
     return $content;
 }
@@ -1165,35 +1170,35 @@ function cathref_opener( $target = 'bible' ) {
     }
     return $opener;
 }
-    
+
 /* ******************************************
  * Options and configuration
  */
-        
+
 // Ensure that we have the texts to use (Scripture, Catechism, etc.)
 // Returns NULL if all texts are found.
 // Returns a notice message in a string for any missing texts.
 function cathref_check_texts( $config ) {
     global $cathref_notices, $cathref_site;
-    
+
     $message = "";
-    
+
     if( ! cathref_drb_text_exists() ) {
         $message .= "Scripture text files not found.  Scripture references will not be active.<br />";
     }
     if( ! cathref_ccc_text_exists() ) {
         $message .= "Catechism text files not found.  References to the Catechism will not be active.<br />";
     }
-    
+
     if( ! empty( $message ) ) {
         $message .= " The texts used by the CRE can be obtained <a href='$cathref_site' target='cre'>here</a>.<br />";
         $cathref_notices .= $message;
     }
 }
-    
+
 function cathref_options_page() {
     global $cathref_notices, $cathref_version, $cathref_wp_option_name;
-    
+
     $config = cathref_get_config();
     $cathref_notices = "";
     if( isset( $_POST[ 'cathref_submit' ] ) ) {
@@ -1201,6 +1206,7 @@ function cathref_options_page() {
             $config[ 'show_popup_on_hover' ] = (bool) $_POST[ 'show_popup_on_hover' ];
         }
         $config[ 'show_quote_header' ] = (bool) $_POST[ 'show_quote_header' ];
+        $config[ 'show_bible_version' ] = (bool) $_POST[ 'show_bible_version' ];
         $config[ 'draw_shadows' ] = (bool) $_POST[ 'draw_shadows' ];
         if( isset( $_POST[ 'drb_dir' ] ) ) {
             $config[ 'drb_dir' ] = $_POST[ 'drb_dir' ];
@@ -1233,13 +1239,13 @@ function cathref_options_page() {
         $config[ 'show_link_LXX' ] = (bool) $_POST[ 'show_link_LXX' ];
         $config[ 'show_link_NJB' ] = (bool) $_POST[ 'show_link_NJB' ];
         $config[ 'link_behaviour' ] = $_POST[ 'link_behaviour' ];
-        
+
         update_option( $cathref_wp_option_name, $config );
         $cathref_notices .= __( 'Configuration saved.<br />', 'catholic-reference' );
     }
     cathref_check_texts( $config );
     ?>
-    
+
     <?php
     if( ! empty( $cathref_notices ) ) {
     ?>
@@ -1251,15 +1257,15 @@ function cathref_options_page() {
         <?php
     }
     ?>
-    
+
     <div class="cathref_config">
-    
+
     <h2>Catholic Reference Extension</h2>
-    
+
     Version <?php echo $cathref_version; ?>
-    
+
     <form method="POST" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-    
+
         <div>
         Show popups when references are:
         <input type="radio" name="show_popup_on_hover" value="1" <?php
@@ -1269,26 +1275,33 @@ function cathref_options_page() {
             ( ! $config[ 'show_popup_on_hover' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
         ?> />clicked
         </div>
-        
+
         <div>
         Popup width:
         <input type="text" name="popup_width" value="<?php echo $config[ 'popup_width' ] ?>" size="4" />pixels
         </div>
-        
+
+        <div>
+        Show Bible version in popups:
+        <input type="checkbox" name="show_bible_version" <?php
+            ( $config[ 'show_bible_version' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
+        ?> />
+        </div>
+
         <div>
         Draw drop shadows:
         <input type="checkbox" name="draw_shadows" <?php
             ( $config[ 'draw_shadows' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
         ?> />
         </div>
-        
+
         <div>
         Show header in quotations:
         <input type="checkbox" name="show_quote_header" <?php
             ( $config[ 'show_quote_header' ] ) ? _e( 'checked', 'catholic-reference' ) : ''
         ?> />
         </div>
-        
+
         <div>
         Bible versions linked in popups:
         <?php foreach( $config as $key => $value ) {
@@ -1304,7 +1317,7 @@ function cathref_options_page() {
         ?>
         </div>
         <h3>Advanced</h3>
-        
+
         <div>
         Douay-Rheims Bible text directory:
         <input type="text" name="drb_dir" value="<?php echo $config[ 'drb_dir' ] ?>" size="40" />
@@ -1313,7 +1326,7 @@ function cathref_options_page() {
         Catechism of the Catholic Church text directory:
         <input type="text" name="ccc_dir" value="<?php echo $config[ 'ccc_dir' ] ?>" size="40" />
         </div>
-        
+
         <p>
         These two pieces of HTML are used to wrap Scripture and CCC quotations.
         </p>
@@ -1327,7 +1340,7 @@ function cathref_options_page() {
         <td><textarea name="quote_suffix" cols="50" rows="3"><?php echo $config[ 'quote_suffix' ] ?></textarea></td>
         </tr>
         </table>
-        
+
         <div>
         Links open:
         <input type="radio" name="link_behaviour" value="target" <?php
@@ -1340,16 +1353,16 @@ function cathref_options_page() {
             ( $config[ 'link_behaviour' ] == 'nil' ) ? _e( 'checked', 'catholic-reference' ) : ''
         ?> />in same window
         </div>
-        
+
         <br />
         <input type="submit" id="cathref_submit" name="cathref_submit" value="<?php _e( 'Save Changes', 'catholic-reference' ); ?>" />
-    
+
     </form>
-    
+
     </div>
     <?php
 }
-    
+
 function cathref_options_page_adder() {
     if( function_exists( 'add_options_page' ) ) {
         add_options_page(
