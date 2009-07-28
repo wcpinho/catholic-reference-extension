@@ -3,25 +3,28 @@
 # Makes packages for the CRE.
 
 def run( command )
-    puts command
-    puts `#{command}`
+  puts command
+  puts `#{command}`
 end
 
+version = ARGV[ 0 ] || 'trunk'
 work_dir = ARGV[ 1 ] || ( ENV[ 'HOME' ] + "/tmp" )
+
 Dir.chdir( work_dir ) do
-    if ARGV[ 0 ]
-        version = ARGV[ 0 ]
-        svn_dir = "tags/#{version}"
-    else
-        svn_dir = version = "trunk"
-    end
-    
-    run "rm -rf catholic-reference"
-    run "rm -ir catholic-reference*"
-    run "svn export http://rome.purepistos.net/svn/catholic-reference/#{svn_dir}/plugin catholic-reference"
-    run "zip -r -9 catholic-reference-#{version}.zip catholic-reference/"
-    run "tar cjvf catholic-reference-#{version}.tar.bz2 catholic-reference/"
-    run "svn export http://rome.purepistos.net/svn/catholic-reference/#{svn_dir}/texts catholic-reference/texts"
-    run "zip -r -9 catholic-reference-#{version}-full.zip catholic-reference/ "
-    run "tar cjvf catholic-reference-#{version}-full.tar.bz2 catholic-reference/"
+  run "rm -rf catholic-reference"
+end
+
+run "git archive --format=tar HEAD plugin | (cd #{work_dir} && tar xvf -)"
+
+Dir.chdir( work_dir ) do
+  run "mv plugin catholic-reference"
+  run "zip -r -9 catholic-reference-#{version}.zip catholic-reference/"
+  run "tar cjvf catholic-reference-#{version}.tar.bz2 catholic-reference/"
+end
+
+run "git archive --format=tar HEAD texts | (cd #{work_dir}/catholic-reference && tar xvf -)"
+
+Dir.chdir( work_dir ) do
+  run "zip -r -9 catholic-reference-#{version}-full.zip catholic-reference/ "
+  run "tar cjvf catholic-reference-#{version}-full.tar.bz2 catholic-reference/"
 end
